@@ -31,6 +31,11 @@ final class FactoryTest extends TestCase
         $response = $factory->response();
         $this->assertInstanceOf(\Nyholm\Psr7\Response::class, $response);
 
+        $response = $factory->response(404, 'changed phrase', 'the body');
+        $this->assertEquals('changed phrase', $response->getReasonPhrase());
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('the body', (string)$response->getBody());
+
         $stream = $factory->stream();
         $this->assertInstanceOf(\Nyholm\Psr7\Stream::class, $stream);
 
@@ -74,6 +79,11 @@ final class FactoryTest extends TestCase
         $response = $factory->response();
         $this->assertInstanceOf(\GuzzleHttp\Psr7\Response::class, $response);
 
+        $response = $factory->response(404, 'changed phrase', 'the body');
+        $this->assertEquals('changed phrase', $response->getReasonPhrase());
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('the body', (string)$response->getBody());
+
         $stream = $factory->stream();
         $this->assertInstanceOf(\GuzzleHttp\Psr7\Stream::class, $stream);
 
@@ -116,6 +126,11 @@ final class FactoryTest extends TestCase
 
         $response = $factory->response();
         $this->assertInstanceOf(\Laminas\Diactoros\Response::class, $response);
+
+        $response = $factory->response(404, 'changed phrase', 'the body');
+        $this->assertEquals('changed phrase', $response->getReasonPhrase());
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals('the body', (string)$response->getBody());
 
         $stream = $factory->stream();
         $this->assertInstanceOf(\Laminas\Diactoros\Stream::class, $stream);

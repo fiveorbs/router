@@ -4,33 +4,33 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use Psr\Http\Message\RequestInterface as PsrRequest;
-use Psr\Http\Message\ResponseInterface as PsrResponse;
-use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
-use Psr\Http\Message\StreamInterface as PsrStream;
-use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
-use Psr\Http\Message\UriInterface as PsrUri;
+use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as ServerRequest;
+use Psr\Http\Message\StreamInterface as Stream;
+use Psr\Http\Message\UploadedFileInterface as UploadedFile;
+use Psr\Http\Message\UriInterface as Uri;
 
 /** @psalm-api */
 interface Factory
 {
-    public function serverRequest(): PsrServerRequest;
+    public function serverRequest(): ServerRequest;
 
-    public function request(string $method, PsrUri|string $uri): PsrRequest;
+    public function request(string $method, Uri|string $uri): Request;
 
-    public function response(int $code = 200, string $reasonPhrase = ''): PsrResponse;
+    public function response(int $code = 200, string $reasonPhrase = '', string|Stream $body = null): Response;
 
-    public function stream(mixed $content = ''): PsrStream;
+    public function stream(mixed $content = ''): Stream;
 
-    public function streamFromFile(string $filename, string $mode = 'r'): PsrStream;
+    public function streamFromFile(string $filename, string $mode = 'r'): Stream;
 
     public function uploadedFile(
-        PsrStream $stream,
+        Stream $stream,
         int $size = null,
         int $error = \UPLOAD_ERR_OK,
         string $clientFilename = null,
         string $clientMediaType = null
-    ): PsrUploadedFile;
+    ): UploadedFile;
 
-    public function uri(string $uri = ''): PsrUri;
+    public function uri(string $uri = ''): Uri;
 }

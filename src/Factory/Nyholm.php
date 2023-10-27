@@ -7,7 +7,7 @@ namespace Conia\Route\Factory;
 use Conia\Route\Exception\RuntimeException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
-use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 /** @psalm-api */
@@ -32,7 +32,7 @@ class Nyholm extends AbstractFactory
         }
     }
 
-    public function serverRequest(): PsrServerRequest
+    public function serverRequest(): ServerRequestInterface
     {
         $creator = new ServerRequestCreator(
             $this->factory, // ServerRequestFactory

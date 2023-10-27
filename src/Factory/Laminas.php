@@ -11,7 +11,7 @@ use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\StreamFactory;
 use Laminas\Diactoros\UploadedFileFactory;
 use Laminas\Diactoros\UriFactory;
-use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 /** @psalm-api */
@@ -33,7 +33,7 @@ class Laminas extends AbstractFactory
         }
     }
 
-    public function serverRequest(): PsrServerRequest
+    public function serverRequest(): ServerRequestInterface
     {
         return ServerRequestFactory::fromGlobals();
     }

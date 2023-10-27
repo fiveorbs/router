@@ -7,7 +7,7 @@ namespace Conia\Route\Factory;
 use Conia\Route\Exception\RuntimeException;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\ServerRequest;
-use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 /** @psalm-api */
@@ -30,7 +30,7 @@ class Guzzle extends AbstractFactory
         }
     }
 
-    public function serverRequest(): PsrServerRequest
+    public function serverRequest(): ServerRequestInterface
     {
         return ServerRequest::fromGlobals();
     }

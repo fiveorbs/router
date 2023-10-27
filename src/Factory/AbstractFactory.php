@@ -6,43 +6,53 @@ namespace Conia\Route\Factory;
 
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Factory;
-use Psr\Http\Message\RequestFactoryInterface as PsrRequestfactory;
-use Psr\Http\Message\RequestInterface as PsrRequest;
-use Psr\Http\Message\ResponseFactoryInterface as PsrResponseFactory;
-use Psr\Http\Message\ResponseInterface as PsrResponse;
-use Psr\Http\Message\ServerRequestFactoryInterface as PsrServerRequestFactory;
-use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
-use Psr\Http\Message\StreamFactoryInterface as PsrStreamFactory;
-use Psr\Http\Message\StreamInterface as PsrStream;
-use Psr\Http\Message\UploadedFileFactoryInterface as PsrUploadedFileFactory;
-use Psr\Http\Message\UploadedFileInterface as PsrUploadedFile;
-use Psr\Http\Message\UriFactoryInterface as PsrUriFactory;
-use Psr\Http\Message\UriInterface as PsrUri;
+use Psr\Http\Message\RequestFactoryInterface as Requestfactory;
+use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ResponseFactoryInterface as ResponseFactory;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestFactoryInterface as ServerRequestFactory;
+use Psr\Http\Message\ServerRequestInterface as ServerRequest;
+use Psr\Http\Message\StreamFactoryInterface as StreamFactory;
+use Psr\Http\Message\StreamInterface as Stream;
+use Psr\Http\Message\UploadedFileFactoryInterface as UploadedFileFactory;
+use Psr\Http\Message\UploadedFileInterface as UploadedFile;
+use Psr\Http\Message\UriFactoryInterface as UriFactory;
+use Psr\Http\Message\UriInterface as Uri;
 use Stringable;
 
 /** @psalm-api */
 abstract class AbstractFactory implements Factory
 {
-    public readonly PsrRequestFactory $requestFactory;
-    public readonly PsrResponseFactory $responseFactory;
-    public readonly PsrServerRequestFactory $serverRequestFactory;
-    public readonly PsrStreamFactory $streamFactory;
-    public readonly PsrUploadedFileFactory $uploadedFileFactory;
-    public readonly PsrUriFactory $uriFactory;
+    public readonly RequestFactory $requestFactory;
+    public readonly ResponseFactory $responseFactory;
+    public readonly ServerRequestFactory $serverRequestFactory;
+    public readonly StreamFactory $streamFactory;
+    public readonly UploadedFileFactory $uploadedFileFactory;
+    public readonly UriFactory $uriFactory;
 
-    abstract public function serverRequest(): PsrServerRequest;
+    abstract public function serverRequest(): ServerRequest;
 
-    public function request(string $method, PsrUri|string $uri): PsrRequest
+    public function request(string $method, Uri|string $uri): Request
     {
         return $this->requestFactory->createRequest($method, $uri);
     }
 
-    public function response(int $code = 200, string $reasonPhrase = ''): PsrResponse
+    public function response(int $code = 200, string $reasonPhrase = '', string|Stream $body = null): Response
     {
-        return $this->responseFactory->createResponse($code, $reasonPhrase);
+        $response =  $this->responseFactory->createResponse($code, $reasonPhrase);
+
+        if (!is_null($body)) {
+            if (is_string($body)) {
+                $response = $response->withBody($this->streamFactory->createStream($body));
+            } else {
+                $response = $response->withBody($body);
+            }
+        }
+
+        return $response;
     }
 
-    public function stream(mixed $content = ''): PsrStream
+    public function stream(mixed $content = ''): Stream
     {
         if (is_string($content) || $content instanceof Stringable) {
             return $this->streamFactory->createStream((string)$content);
@@ -55,52 +65,52 @@ abstract class AbstractFactory implements Factory
         throw new RuntimeException('Only strings, Stringable or resources are allowed');
     }
 
-    public function streamFromFile(string $filename, string $mode = 'r'): PsrStream
+    public function streamFromFile(string $filename, string $mode = 'r'): Stream
     {
         return $this->streamFactory->createStreamFromFile($filename, $mode);
     }
 
     public function uploadedFile(
-        PsrStream $stream,
+        Stream $stream,
         int $size = null,
         int $error = \UPLOAD_ERR_OK,
         string $clientFilename = null,
         string $clientMediaType = null
-    ): PsrUploadedFile {
+    ): UploadedFile {
         return $this->uploadedFileFactory->createUploadedFile($stream, $size, $error, $clientFilename, $clientMediaType);
     }
 
-    public function uri(string $uri = ''): PsrUri
+    public function uri(string $uri = ''): Uri
     {
         return $this->uriFactory->createUri($uri);
     }
 
-    protected function setResponseFactory(PsrResponseFactory $factory): void
+    protected function setResponseFactory(ResponseFactory $factory): void
     {
         $this->responseFactory = $factory;
     }
 
-    protected function setRequestFactory(PsrRequestFactory $factory): void
+    protected function setRequestFactory(RequestFactory $factory): void
     {
         $this->requestFactory = $factory;
     }
 
-    protected function setStreamFactory(PsrStreamFactory $factory): void
+    protected function setStreamFactory(StreamFactory $factory): void
     {
         $this->streamFactory = $factory;
     }
 
-    protected function setServerRequestFactory(PsrServerRequestFactory $factory): void
+    protected function setServerRequestFactory(ServerRequestFactory $factory): void
     {
         $this->serverRequestFactory = $factory;
     }
 
-    protected function setUploadedFileFactory(PsrUploadedFileFactory $factory): void
+    protected function setUploadedFileFactory(UploadedFileFactory $factory): void
     {
         $this->uploadedFileFactory = $factory;
     }
 
-    protected function setUriFactory(PsrUriFactory $factory): void
+    protected function setUriFactory(UriFactory $factory): void
     {
         $this->uriFactory = $factory;
     }
