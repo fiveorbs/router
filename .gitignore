@@ -1,0 +1,11 @@
+*.log
+.cache
+.env
+.php*.cache
+.phpactor.json
+/coverage
+/data
+/tmp
+/vendor
+__pycache__
+composer.lock
