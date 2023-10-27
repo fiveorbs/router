@@ -16,7 +16,13 @@ class Guzzle extends AbstractFactory
     public function __construct()
     {
         try {
-            $this->streamFactory = $this->responseFactory = new HttpFactory();
+            $factory = new HttpFactory();
+            $this->setRequestFactory($factory);
+            $this->setResponseFactory($factory);
+            $this->setServerRequestFactory($factory);
+            $this->setStreamFactory($factory);
+            $this->setUploadedFileFactory($factory);
+            $this->setUriFactory($factory);
             // @codeCoverageIgnoreStart
         } catch (Throwable) {
             throw new RuntimeException('Install guzzlehttp/psr7');
@@ -24,7 +30,7 @@ class Guzzle extends AbstractFactory
         }
     }
 
-    public function request(): PsrServerRequest
+    public function serverRequest(): PsrServerRequest
     {
         return ServerRequest::fromGlobals();
     }

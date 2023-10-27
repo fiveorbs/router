@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Conia\Route\Factory;
 
 use Conia\Route\Exception\RuntimeException;
+use Laminas\Diactoros\RequestFactory;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\StreamFactory;
+use Laminas\Diactoros\UploadedFileFactory;
+use Laminas\Diactoros\UriFactory;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Throwable;
 
@@ -17,8 +20,12 @@ class Laminas extends AbstractFactory
     public function __construct()
     {
         try {
-            $this->responseFactory = new ResponseFactory();
-            $this->streamFactory = new StreamFactory();
+            $this->setRequestFactory(new RequestFactory());
+            $this->setResponseFactory(new ResponseFactory());
+            $this->setServerRequestFactory(new ServerRequestFactory());
+            $this->setStreamFactory(new StreamFactory());
+            $this->setUploadedFileFactory(new UploadedFileFactory());
+            $this->setUriFactory(new UriFactory());
             // @codeCoverageIgnoreStart
         } catch (Throwable) {
             throw new RuntimeException('Install nyholm/psr7-server');
@@ -26,7 +33,7 @@ class Laminas extends AbstractFactory
         }
     }
 
-    public function request(): PsrServerRequest
+    public function serverRequest(): PsrServerRequest
     {
         return ServerRequestFactory::fromGlobals();
     }
