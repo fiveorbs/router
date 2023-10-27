@@ -5,9 +5,16 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Conia\\Route\\": "src/",
-            "Conia\\Route\\Tests\\": "tests/"
+            "Conia\\Route\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Conia\\Route\\Tests\\": "tests/"
+        },
+        "files": [
+            "tests/Fixtures/globalTestSymbols.php"
+        ]
     },
     "authors": [
         {
