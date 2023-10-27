@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Conia\Route\Renderer;
 
 use Attribute;
-use Conia\Route\Registry;
+use Conia\Registry\Registry;
 use Conia\Route\Renderer\Renderer;
 use Conia\Route\ResponseWrapper;
 
