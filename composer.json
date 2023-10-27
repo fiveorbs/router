@@ -14,5 +14,7 @@
             "email": "info@ebenefuenf.de"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "conia/development": "^1.0"
+    }
 }
