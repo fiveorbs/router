@@ -15,6 +15,14 @@
         }
     ],
     "require-dev": {
-        "conia/development": "^1.0"
+        "conia/development": "^1.0",
+        "phpunit/phpunit": "^10.4",
+        "vimeo/psalm": "^5.15",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
