@@ -26,23 +26,19 @@
     ],
     "require": {
         "php": ">=8.2",
-        "psr/http-server-handler": "^1.0",
-        "psr/http-server-middleware": "^1.0",
+        "conia/registry": "dev-main",
+        "psr/container": "^2.0",
         "psr/http-message": "^1.1 || ^2.0",
         "psr/http-message-implementation": "^1.0",
-        "conia/registry": "dev-main",
-        "laminas/laminas-httphandlerrunner": "^2.9",
-        "psr/container": "^2.0"
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
         "conia/development": "^1.0",
-        "phpunit/phpunit": "^10.4",
-        "vimeo/psalm": "^5.15",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "guzzlehttp/psr7": "^2.6",
         "laminas/laminas-diactoros": "^3.3",
-        "nyholm/psr7": "^1.8",
-        "nyholm/psr7-server": "^1.0"
+        "phpunit/phpunit": "^10.4",
+        "vimeo/psalm": "^5.15"
     },
     "config": {
         "allow-plugins": {
