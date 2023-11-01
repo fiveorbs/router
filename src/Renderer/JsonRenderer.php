@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Renderer;
 
-use Conia\Route\Factory;
+use Psr\Http\Message\ResponseFactoryInterface as Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Traversable;
 
@@ -37,9 +37,9 @@ class JsonRenderer implements Renderer
 
     public function response(mixed $data, mixed ...$args): Response
     {
-        $response = $this->factory->response()
-            ->withHeader('Content-Type', 'application/json')
-            ->withBody($this->factory->stream($this->render($data, ...$args)));
+        $response = $this->factory->createResponse()
+            ->withHeader('Content-Type', 'application/json');
+        $response->getBody()->write($this->render($data, ...$args));
 
         return $response;
     }

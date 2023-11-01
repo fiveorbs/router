@@ -12,21 +12,21 @@ class RendererTest extends TestCase
 {
     public function testJsonRendererRender(): void
     {
-        $renderer = new JsonRenderer($this->factory(), []);
+        $renderer = new JsonRenderer($this->responseFactory(), []);
 
         $this->assertEquals('{"album":"Spiritual Healing","released":1990}', $renderer->render([ 'album' => 'Spiritual Healing', 'released' => 1990, ]));
     }
 
     public function testJsonRendererRenderIterator(): void
     {
-        $renderer = new JsonRenderer($this->factory(), []);
+        $renderer = new JsonRenderer($this->responseFactory(), []);
 
         $this->assertEquals('[13,31,73]', $renderer->render(testJsonRendererIterator()));
     }
 
     public function testJsonRendererRenderWithFlags(): void
     {
-        $renderer = new JsonRenderer($this->factory(), []);
+        $renderer = new JsonRenderer($this->responseFactory(), []);
 
         $this->assertEquals('{"path":"album/leprosy"}', $renderer->render([ 'path' => 'album/leprosy', ]));
         $this->assertEquals('{"path":"album\/leprosy"}', $renderer->render([ 'path' => 'album/leprosy', ], JSON_THROW_ON_ERROR));
@@ -34,11 +34,11 @@ class RendererTest extends TestCase
 
     public function testJsonRendererResponse(): void
     {
-        $renderer = new JsonRenderer($this->factory(), []);
+        $renderer = new JsonRenderer($this->responseFactory(), []);
 
         $this->assertEquals('{"album":"Spiritual Healing","released":1990}', (string)$renderer->response([ 'album' => 'Spiritual Healing', 'released' => 1990, ])->getBody());
 
-        $renderer = new JsonRenderer($this->factory(), []);
+        $renderer = new JsonRenderer($this->responseFactory(), []);
 
         $response = $renderer->response(testJsonRendererIterator());
         $this->assertEquals('[13,31,73]', (string)$response->getBody());
@@ -56,7 +56,7 @@ class RendererTest extends TestCase
 
     public function testHtmlRenderer(): void
     {
-        $renderer = new HtmlRenderer($this->factory(), []);
+        $renderer = new HtmlRenderer($this->responseFactory(), []);
         $response = $renderer->response('<h1>Symbolic</h1>');
 
         $hasContentType = false;
@@ -73,7 +73,7 @@ class RendererTest extends TestCase
 
     public function testTextRenderer(): void
     {
-        $renderer = new TextRenderer($this->factory(), []);
+        $renderer = new TextRenderer($this->responseFactory(), []);
         $response = $renderer->response('Symbolic');
 
         $hasContentType = false;

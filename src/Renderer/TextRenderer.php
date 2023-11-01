@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Renderer;
 
-use Conia\Route\Factory;
+use Psr\Http\Message\ResponseFactoryInterface as Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 
 /** @psalm-api */
@@ -21,8 +21,10 @@ class TextRenderer implements Renderer
 
     public function response(mixed $data, mixed ...$args): Response
     {
-        return $this->factory->response()
-            ->withHeader('Content-Type', 'text/plain')
-            ->withBody($this->factory->stream($this->render($data, ...$args)));
+        $response = $this->factory->createResponse()
+            ->withHeader('Content-Type', 'text/plain');
+        $response->getBody()->write($this->render($data, ...$args));
+
+        return $response;
     }
 }
