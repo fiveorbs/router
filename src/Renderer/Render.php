@@ -7,7 +7,7 @@ namespace Conia\Route\Renderer;
 use Attribute;
 use Conia\Registry\Registry;
 use Conia\Route\Renderer\Renderer;
-use Conia\Route\ResponseWrapper;
+use Psr\Http\Message\ResponseInterface as Response;
 
 /** @psalm-api */
 #[Attribute]
@@ -25,7 +25,7 @@ class Render
         return $this->getRenderer($registry)->render($data, ...$this->args);
     }
 
-    public function response(Registry $registry, mixed $data): ResponseWrapper
+    public function response(Registry $registry, mixed $data): Response
     {
         return $this->getRenderer($registry)->response($data, ...$this->args);
     }
