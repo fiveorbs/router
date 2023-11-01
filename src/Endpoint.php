@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
+use Conia\Route\Exception\RuntimeException;
+
 /** @psalm-api */
 class Endpoint
 {
@@ -23,6 +25,9 @@ class Endpoint
         protected readonly string $controller,
         protected readonly string|array $args
     ) {
+        if (!class_exists($controller)) {
+            throw new RuntimeException("Endpoint controller {$controller} does not exist!");
+        }
     }
 
     public function add(): void
