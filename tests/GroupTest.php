@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-use Conia\Route\Exception\HttpMethodNotAllowed;
+namespace Conia\Route\Tests;
+
+use Conia\Route\Exception\MethodNotAllowedException;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Exception\ValueError;
 use Conia\Route\Group;
@@ -30,10 +32,10 @@ class GroupTest extends TestCase
         }, 'albums:');
         $group->create($router);
 
-        $this->assertEquals('index', $router->match($this->request(method: 'GET', url: ''))->name());
-        $this->assertEquals('albums:name', $router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name());
-        $this->assertEquals('albums:home', $router->match($this->request(method: 'GET', url: '/albums/home'))->name());
-        $this->assertEquals('albums:list', $router->match($this->request(method: 'GET', url: '/albums'))->name());
+        $this->assertEquals('index', $router->match($this->request(method: 'GET', uri: ''))->name());
+        $this->assertEquals('albums:name', $router->match($this->request(method: 'GET', uri: '/albums/symbolic'))->name());
+        $this->assertEquals('albums:home', $router->match($this->request(method: 'GET', uri: '/albums/home'))->name());
+        $this->assertEquals('albums:list', $router->match($this->request(method: 'GET', uri: '/albums'))->name());
         $this->assertEquals('/albums/symbolic', $router->routeUrl('albums:name', name: 'symbolic'));
     }
 
@@ -52,15 +54,15 @@ class GroupTest extends TestCase
         });
         $group->create($router);
 
-        $this->assertEquals('', $router->match($this->request(method: 'GET', url: ''))->name());
-        $this->assertEquals('', $router->match($this->request(method: 'GET', url: '/albums/symbolic'))->name());
-        $this->assertEquals('', $router->match($this->request(method: 'GET', url: '/albums/home'))->name());
-        $this->assertEquals('', $router->match($this->request(method: 'GET', url: '/albums'))->name());
+        $this->assertEquals('', $router->match($this->request('GET', ''))->name());
+        $this->assertEquals('', $router->match($this->request('GET', '/albums/symbolic'))->name());
+        $this->assertEquals('', $router->match($this->request('GET', '/albums/home'))->name());
+        $this->assertEquals('', $router->match($this->request('GET', '/albums'))->name());
     }
 
     public function testMatchingWithHelperMethods(): void
     {
-        $this->throws(HttpMethodNotAllowed::class);
+        $this->throws(MethodNotAllowedException::class);
 
         $router = new Router();
         $index = new Route('/', fn () => null);
@@ -80,17 +82,18 @@ class GroupTest extends TestCase
         }, 'helper:');
         $group->create($router);
 
-        $this->assertEquals('helper:getroute', $router->match($this->request(method: 'GET', url: '/helper/get'))->name());
-        $this->assertEquals('helper:postroute', $router->match($this->request(method: 'POST', url: '/helper/post'))->name());
-        $this->assertEquals('helper:putroute', $router->match($this->request(method: 'PUT', url: '/helper/put'))->name());
-        $this->assertEquals('helper:patchroute', $router->match($this->request(method: 'PATCH', url: '/helper/patch'))->name());
-        $this->assertEquals('helper:deleteroute', $router->match($this->request(method: 'DELETE', url: '/helper/delete'))->name());
-        $this->assertEquals('helper:optionsroute', $router->match($this->request(method: 'OPTIONS', url: '/helper/options'))->name());
-        $this->assertEquals('helper:headroute', $router->match($this->request(method: 'HEAD', url: '/helper/head'))->name());
-        $this->assertEquals('helper:allroute', $router->match($this->request(method: 'GET', url: '/helper/route'))->name());
-        $this->assertEquals('helper:allroute', $router->match($this->request(method: 'HEAD', url: '/helper/route'))->name());
+        $this->assertEquals('helper:getroute', $router->match($this->request('GET', '/helper/get'))->name());
+        $this->assertEquals('helper:postroute', $router->match($this->request('POST', '/helper/post'))->name());
+        $this->assertEquals('helper:putroute', $router->match($this->request('PUT', '/helper/put'))->name());
+        $this->assertEquals('helper:patchroute', $router->match($this->request('PATCH', '/helper/patch'))->name());
+        $this->assertEquals('helper:deleteroute', $router->match($this->request('DELETE', '/helper/delete'))->name());
+        $this->assertEquals('helper:optionsroute', $router->match($this->request('OPTIONS', '/helper/options'))->name());
+        $this->assertEquals('helper:headroute', $router->match($this->request('HEAD', '/helper/head'))->name());
+        $this->assertEquals('helper:allroute', $router->match($this->request('GET', '/helper/route'))->name());
+        $this->assertEquals('helper:allroute', $router->match($this->request('HEAD', '/helper/route'))->name());
+
         // raises not allowed
-        $router->match($this->request(method: 'GET', url: '/helper/delete'));
+        $router->match($this->request('GET', '/helper/delete'));
     }
 
     public function testRenderer(): void
@@ -109,13 +112,13 @@ class GroupTest extends TestCase
         }))->render('json');
         $group->create($router);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
         $this->assertEquals('json', $route->getRenderer()->type);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
         $this->assertEquals('template:home.php', $route->getRenderer()->type);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums'));
         $this->assertEquals('json', $route->getRenderer()->type);
     }
 
@@ -130,7 +133,7 @@ class GroupTest extends TestCase
         }, 'albums-'))->controller(TestController::class);
         $group->create($router);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums-list'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums-list'));
         $this->assertEquals('albums-list', $route->name());
         $this->assertEquals([TestController::class, 'albumList'], $route->view());
     }
@@ -141,12 +144,11 @@ class GroupTest extends TestCase
         $index = new Route('/', fn () => null);
         $router->addRoute($index);
 
-        $group = (new Group('/media', function (Group $group) {
+        (new Group('/media', function (Group $group) {
             $group->endpoint('/albums', TestEndpoint::class, 'id')->name('albums')->add();
-        }, 'media-'));
-        $group->create($router);
+        }, 'media-'))->create($router);
 
-        $route = $router->match($this->request(method: 'GET', url: '/media/albums/666'));
+        $route = $router->match($this->request(method: 'GET', uri: '/media/albums/666'));
         $this->assertEquals('media-albums-get', $route->name());
         $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
         $this->assertEquals(['id' => '666'], $route->args());
@@ -173,12 +175,17 @@ class GroupTest extends TestCase
             }, 'music-');
         }, 'media-'))->middleware('media-middleware')->create($router);
 
-        $route = $router->match($this->request(method: 'GET', url: '/media/music/albums/songs/times/666'));
+        $route = $router->match($this->request(method: 'GET', uri: '/media/music/albums/songs/times/666'));
         $this->assertEquals('media-music-albums-songs-times-get', $route->name());
         $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
         $this->assertEquals('/media/music/albums/songs/times/{id}', $route->pattern());
         $this->assertEquals(['id' => '666'], $route->args());
-        $this->assertEquals([ ['media-middleware'], ['albums-middleware'], ['songs-middleware'], ['times-middleware'], ], $route->getMiddleware());
+        $this->assertEquals([
+            ['media-middleware'],
+            ['albums-middleware'],
+            ['songs-middleware'],
+            ['times-middleware'],
+        ], $route->getMiddleware());
     }
 
     public function testControllerPrefixingErrorUsingClosure(): void
@@ -221,12 +228,12 @@ class GroupTest extends TestCase
         }))->middleware(TestMiddleware2::class);
         $group->create($router);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums/human'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
         $middleware = $route->getMiddleware();
         $this->assertEquals(1, count($middleware));
         $this->assertEquals(TestMiddleware2::class, $middleware[0][0]);
 
-        $route = $router->match($this->request(method: 'GET', url: '/albums/home'));
+        $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
         $middleware = $route->getMiddleware();
         $this->assertEquals(2, count($middleware));
         $this->assertEquals(TestMiddleware2::class, $middleware[0][0]);

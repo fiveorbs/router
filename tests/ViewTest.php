@@ -4,24 +4,18 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
+use Conia\Registry\Exception\ContainerException;
 use Conia\Registry\Registry;
-use Conia\Route\Exception\ContainerException;
-use Conia\Route\Factory;
-use Conia\Route\Http\View;
 use Conia\Route\Renderer\Renderer;
-use Conia\Route\Request;
-use Conia\Route\Response;
 use Conia\Route\Route;
 use Conia\Route\Tests\Fixtures\TestAttribute;
 use Conia\Route\Tests\Fixtures\TestAttributeDiff;
 use Conia\Route\Tests\Fixtures\TestAttributeExt;
-use Conia\Route\Tests\Fixtures\TestAttributeViewAttr;
 use Conia\Route\Tests\Fixtures\TestController;
 use Conia\Route\Tests\Fixtures\TestRendererArgsOptions;
-use Conia\Route\Tests\Fixtures\TestResponse;
-use Conia\Route\Tests\Setup\TestCase;
-
-require __DIR__ . '/Setup/globalSymbols.php';
+use Conia\Route\View;
+use ReflectionFunction;
+use ReflectionMethod;
 
 class ViewTest extends TestCase
 {
@@ -31,18 +25,18 @@ class ViewTest extends TestCase
         $route->match('/');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect($view->execute())->toBe('chuck');
-        expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+        $this->assertEquals('chuck', $view->execute());
+        $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testFunction(): void
     {
-        $route = new Route('/{name}', '_testViewWithAttribute');
+        $route = new Route('/{name}', 'testViewWithAttribute');
         $route->match('/symbolic');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect($view->execute())->toBe('symbolic');
-        expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+        $this->assertEquals('symbolic', $view->execute());
+        $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerString(): void
@@ -51,8 +45,8 @@ class ViewTest extends TestCase
         $route->match('/');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect($view->execute())->toBe('text');
-        expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+        $this->assertEquals('text', $view->execute());
+        $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerClassMethod(): void
@@ -61,8 +55,8 @@ class ViewTest extends TestCase
         $route->match('/');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect($view->execute())->toBe('text');
-        expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+        $this->assertEquals('text', $view->execute());
+        $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerObjectMethod(): void
@@ -72,8 +66,8 @@ class ViewTest extends TestCase
         $route->match('/');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect($view->execute())->toBe('text');
-        expect($view->attributes()[0])->toBeInstanceOf(TestAttribute::class);
+        $this->assertEquals('text', $view->execute());
+        $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testAttributeFilteringCallableView(): void
@@ -81,10 +75,10 @@ class ViewTest extends TestCase
         $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect(count($view->attributes()))->toBe(3);
-        expect(count($view->attributes(TestAttribute::class)))->toBe(2);
-        expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
-        expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
+        $this->assertEquals(3, count($view->attributes()));
+        $this->assertEquals(2, count($view->attributes(TestAttribute::class)));
+        $this->assertEquals(1, count($view->attributes(TestAttributeExt::class)));
+        $this->assertEquals(1, count($view->attributes(TestAttributeDiff::class)));
     }
 
     public function testAttributeFilteringControllerView(): void
@@ -92,23 +86,10 @@ class ViewTest extends TestCase
         $route = new Route('/', [TestController::class, 'arrayView']);
         $view = new View($route->view(), $route->args(), $this->registry());
 
-        expect(count($view->attributes()))->toBe(3);
-        expect(count($view->attributes(TestAttribute::class)))->toBe(2);
-        expect(count($view->attributes(TestAttributeExt::class)))->toBe(1);
-        expect(count($view->attributes(TestAttributeDiff::class)))->toBe(1);
-    }
-
-    public function testAttributeWithCallAttribute(): void
-    {
-        $route = new Route('/', #[TestAttributeViewAttr] fn () => '');
-        $route->match('/');
-        $view = new View($route->view(), $route->args(), $this->registry());
-
-        $attr = $view->attributes()[0];
-
-        expect($attr->registry)->toBeInstanceOf(Registry::class);
-        expect($attr->request)->toBeInstanceOf(Request::class);
-        expect($attr->after)->toBe('Called after');
+        $this->assertEquals(3, count($view->attributes()));
+        $this->assertEquals(2, count($view->attributes(TestAttribute::class)));
+        $this->assertEquals(1, count($view->attributes(TestAttributeExt::class)));
+        $this->assertEquals(1, count($view->attributes(TestAttributeDiff::class)));
     }
 
     public function testUntypedClosureParameter(): void
@@ -125,7 +106,7 @@ class ViewTest extends TestCase
     {
         $rf = View::getReflectionFunction(function () {
         });
-        expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+        $this->assertInstanceOf(ReflectionFunction::class, $rf);
 
         $rf = View::getReflectionFunction(new class () {
             public function __invoke(): string
@@ -133,19 +114,18 @@ class ViewTest extends TestCase
                 return '';
             }
         });
-        expect($rf)->toBeInstanceOf(ReflectionMethod::class);
+        $this->assertInstanceOf(ReflectionMethod::class, $rf);
 
         $rf = View::getReflectionFunction('is_string');
-        expect($rf)->toBeInstanceOf(ReflectionFunction::class);
+        $this->assertInstanceOf(ReflectionFunction::class, $rf);
     }
 
-    public function testViewResponseResponse(): void
+    public function testViewResponse(): void
     {
-        $route = new Route('/', function (Registry $registry): Response {
-            $factory = $registry->get(Factory::class);
-            $response = new Response($factory->response(), $factory);
-            $response->write('Chuck Response');
-            $response->header('Content-Type', 'text/plain');
+        $route = new Route('/', function () {
+            $response = $this->responseFactory()->createResponse()
+                ->withHeader('Content-Type', 'text/plain');
+            $response->getBody()->write('Chuck PSR Response');
 
             return $response;
         });
@@ -153,53 +133,8 @@ class ViewTest extends TestCase
         $view = new View($route->view(), $route->args(), $this->registry());
         $response = $view->respond($route, $this->registry());
 
-        expect((string)$response->getBody())->toBe('Chuck Response');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
-    }
-
-    public function testViewResponsePSRResponse(): void
-    {
-        $route = new Route('/', function (Registry $registry) {
-            $factory = $registry->get(Factory::class);
-
-            return $factory->response()
-                ->withBody($factory->stream('Chuck PSR Response'))
-                ->withHeader('Content-Type', 'text/plain');
-        });
-        $route->match('/');
-        $view = new View($route->view(), $route->args(), $this->registry());
-        $response = $view->respond($route, $this->registry());
-
-        expect((string)$response->getBody())->toBe('Chuck PSR Response');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
-    }
-
-    public function testViewResponseResponseWrapper(): void
-    {
-        $route = new Route('/', function (Registry $registry) {
-            $factory = $registry->get(Factory::class);
-
-            return new TestResponse($factory->response()
-                ->withBody($factory->stream('Chuck ResponseWrapper'))
-                ->withHeader('Content-Type', 'text/plain'));
-        });
-        $route->match('/');
-        $view = new View($route->view(), $route->args(), $this->registry());
-        $response = $view->respond($route, $this->registry());
-
-        expect((string)$response->getBody())->toBe('Chuck ResponseWrapper');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('text/plain');
-    }
-
-    public function testViewResponseRenderer(): void
-    {
-        $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('json');
-        $route->match('/');
-        $view = new View($route->view(), $route->args(), $this->registry());
-        $response = $view->respond($route, $this->registry());
-
-        expect((string)$response->getBody())->toBe('{"name":"Chuck"}');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
+        $this->assertEquals('Chuck PSR Response', (string)$response->getBody());
+        $this->assertEquals('text/plain', $response->getHeaders()['Content-Type'][0]);
     }
 
     public function testViewResponseRendererWithArgsAndOptions(): void
@@ -215,9 +150,8 @@ class ViewTest extends TestCase
         $view = new View($route->view(), $route->args(), $registry);
         $response = $view->respond($route, $registry);
 
-        expect((string)$response->getBody())
-            ->toBe('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
+        $this->assertEquals('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}', (string)$response->getBody());
+        $this->assertEquals('application/json', $response->getHeaders()['Content-Type'][0]);
     }
 
     public function testViewResponseRendererWithOptionsClosure(): void
@@ -233,7 +167,7 @@ class ViewTest extends TestCase
         $view = new View($route->view(), $route->args(), $registry);
         $response = $view->respond($route, $registry);
 
-        expect((string)$response->getBody())->toBe('{"name":"Chuck","option1":13,"option2":"Option"}');
-        expect($response->getHeaders()['Content-Type'][0])->toBe('application/json');
+        $this->assertEquals('{"name":"Chuck","option1":13,"option2":"Option"}', (string)$response->getBody());
+        $this->assertEquals('application/json', $response->getHeaders()['Content-Type'][0]);
     }
 }

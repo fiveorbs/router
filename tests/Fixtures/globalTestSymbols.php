@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Conia\Route\Tests\Fixtures\TestAttribute;
+
 if (!function_exists('testJsonRendererIterator')) {
     function testJsonRendererIterator()
     {
@@ -10,5 +12,11 @@ if (!function_exists('testJsonRendererIterator')) {
         foreach ($arr as $a) {
             yield $a;
         }
+    }
+
+    #[TestAttribute]
+    function testViewWithAttribute(string $name): string
+    {
+        return $name;
     }
 }
