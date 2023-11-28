@@ -149,10 +149,10 @@ class Router implements RouteAdder
             return $route->url(...$args);
         }
 
-        throw new RuntimeException('Route not found: ' . $__routeName__);
+        throw new NotFoundException('Route not found: ' . $__routeName__);
     }
 
-    public function match(Request $request): Route
+    public function match(Request $request): RequestRoute
     {
         $url = rawurldecode($request->getUri()->getPath());
         $requestMethod = $request->getMethod();
@@ -160,7 +160,7 @@ class Router implements RouteAdder
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
                 if ($route->match($url)) {
-                    return $route;
+                    return new RequestRoute($route, $request);
                 }
             }
         }
