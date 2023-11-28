@@ -5,21 +5,14 @@ declare(strict_types=1);
 namespace Conia\Route;
 
 use Closure;
-use Conia\Registry\Registry;
-use Conia\Registry\Resolver;
 use Conia\Route\AddsMiddleware;
 use Conia\Route\AddsRoutes;
-use Conia\Route\Dispatcher;
 use Conia\Route\Exception\MethodNotAllowedException;
 use Conia\Route\Exception\NotFoundException;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\RouteAdder;
 use Conia\Route\StaticRoute;
-use Conia\Route\View;
-use Conia\Route\ViewHandler;
 use Psr\Http\Message\RequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
 use Throwable;
 
 /** @psalm-api */
@@ -200,20 +193,6 @@ class Router implements RouteAdder
         throw new NotFoundException();
     }
 
-    /**
-     * Looks up the matching route and generates the response.
-     */
-    public function dispatch(Request $request, Registry $registry): Response
-    {
-        $this->route = $this->match($request);
-
-        $view = new View($this->route->view(), $this->route->args(), $registry);
-        $queue = $this->collectMiddleware($view, $registry);
-        $queue[] = new ViewHandler($view, $registry, $this->route);
-
-        return (new Dispatcher($queue, $registry))->dispatch($request);
-    }
-
     protected function getCacheBuster(string $dir, string $path): string
     {
         $ds = DIRECTORY_SEPARATOR;
@@ -224,43 +203,5 @@ class Router implements RouteAdder
         } catch (Throwable) {
             return '';
         }
-    }
-
-    protected function collectMiddleware(View $view, Registry $registry): array
-    {
-        $middlewareAttributes = $view->attributes(Middleware::class);
-
-        return array_map(
-            /** @psalm-param list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware $middleware */
-            function (
-                array|Closure|Middleware $middleware
-            ) use ($registry): Middleware {
-                if (
-                    ($middleware instanceof Middleware)
-                    || ($middleware instanceof Closure)
-                ) {
-                    return $middleware;
-                }
-
-                if (class_exists($middleware[0])) {
-                    $object = (new Resolver($registry))->autowire(
-                        $middleware[0],
-                        array_slice($middleware, 1),
-                    );
-                    assert($object instanceof Middleware);
-
-                    return $object;
-                }
-
-                throw new RuntimeException('Invalid middleware: ' .
-                    /** @scrutinizer ignore-type */
-                    print_r($middleware[0], true));
-            },
-            array_merge(
-                $this->middleware,
-                $this->route ? $this->route->getMiddleware() : [],
-                $middlewareAttributes,
-            )
-        );
     }
 }
