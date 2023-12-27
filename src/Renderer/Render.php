@@ -10,9 +10,9 @@ use Attribute;
 #[Attribute]
 class Render
 {
-    protected array $args;
+    public readonly array $args;
 
-    public function __construct(protected string $renderer, mixed ...$args)
+    public function __construct(public readonly string $type, mixed ...$args)
     {
         $this->args = $args;
     }
