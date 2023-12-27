@@ -1,0 +1,13 @@
+site_name: Conia Route
+copyright: © 2023 ebene fünf GmbH
+nav:
+  - index.md
+theme:
+    name: conia
+repo_url: https://github.com/coniadev/route
+extra:
+    project: Route
+plugins:
+    - search
+    - macros:
+        module_name: docs/main
