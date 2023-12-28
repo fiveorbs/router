@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Conia\Route\Factory;
 use Conia\Route\Renderer\Render;
+use Psr\Http\Message\ResponseFactoryInterface as Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -30,15 +30,19 @@ class TestController
 
     public function middlewareView(Factory $factory): Response
     {
-        return $factory->response(body: ' view')->withHeader('Content-Type', 'text/html');
+        $response = $factory->createResponse->withHeader('Content-Type', 'text/html');
+        $response->getBody()->write('view');
+
+        return $response;
     }
 
     #[Render('text'), TestMiddleware1]
     public function attributedMiddlewareView(Factory $factory): Response
     {
-        $s = ' attribute-string';
+        $response = $factory->createResponse->withHeader('Content-Type', 'text/html');
+        $response->getBody()->write(' attribute-string');
 
-        return $factory->response(body: $s)->withHeader('Content-Type', 'text/html');
+        return $response;
     }
 
     public function routeParams(string $string, float $float, Request $request, int $int): array
