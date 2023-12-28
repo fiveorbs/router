@@ -8,7 +8,10 @@
     "autoload": {
         "psr-4": {
             "Conia\\Route\\": "src/"
-        }
+        },
+        "files": [
+            "src/Utils.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

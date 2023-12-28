@@ -7,7 +7,6 @@ namespace Conia\Route;
 use Closure;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Renderer\Config as RendererConfig;
-use Conia\Route\Route;
 use Conia\Wire\Creator;
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface as Container;
@@ -15,11 +14,9 @@ use Psr\Container\NotFoundExceptionInterface as NotFoundException;
 use Psr\Http\Message\RequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use ReflectionClass;
-use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
-use ReflectionObject;
 use ReflectionParameter;
 use Throwable;
 
@@ -44,24 +41,9 @@ class View
         $closure = $this->getClosure($request);
 
         return ($closure)(...$this->getArgs(
-            self::getReflectionFunction($closure),
+            getReflectionFunction($closure),
             $request,
         ));
-    }
-
-    protected static function getReflectionFunction(
-        callable $callable
-    ): ReflectionFunction|ReflectionMethod {
-        if ($callable instanceof Closure) {
-            return new ReflectionFunction($callable);
-        }
-
-        if (is_object($callable)) {
-            return (new ReflectionObject($callable))->getMethod('__invoke');
-        }
-
-        /** @var Closure|non-falsy-string $callable */
-        return new ReflectionFunction($callable);
     }
 
     /** @psalm-param $filter ?class-string */
@@ -69,7 +51,7 @@ class View
     {
         if (!isset($this->attributes)) {
             if (is_callable($this->view)) {
-                $this->attributes = new AttributesResolver([self::getReflectionFunction($this->view)], $this->container);
+                $this->attributes = new AttributesResolver([getReflectionFunction($this->view)], $this->container);
             } else {
                 [$controller, $method] = $this->view;
                 $reflectionClass = new ReflectionClass($controller);
