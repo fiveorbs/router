@@ -215,7 +215,7 @@ class EndpointTest extends TestCase
         $router = new Router();
         (new Endpoint($router, '/endpoint', TestEndpoint::class, 'id'))->add();
         $route = $router->match($this->request('GET', '/endpoint'));
-        $rendererConfig = $route->getRenderer();
+        $rendererConfig = $route->renderer();
 
         $this->assertEquals('json', $rendererConfig->type);
         $this->assertEquals([], $rendererConfig->args);
@@ -226,7 +226,7 @@ class EndpointTest extends TestCase
         $router = new Router();
         (new Endpoint($router, '/endpoint', TestEndpoint::class, 'id'))->render('text', 1, 'test')->add();
         $route = $router->match($this->request('GET', '/endpoint'));
-        $rendererConfig = $route->getRenderer();
+        $rendererConfig = $route->renderer();
 
         $this->assertEquals('text', $rendererConfig->type);
         $this->assertEquals([1, 'test'], $rendererConfig->args);
