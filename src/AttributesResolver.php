@@ -4,30 +4,36 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use Closure;
-use ReflectionAttribute;
-use ReflectionFunction;
-use ReflectionObject;
 use Conia\Wire\CallableResolver;
 use Conia\Wire\Creator;
 use Psr\Container\ContainerInterface as Container;
+use ReflectionAttribute;
+use ReflectionClass;
+use ReflectionFunctionAbstract;
+use ReflectionObject;
 
 class AttributesResolver
 {
     protected readonly array $attributes;
 
+    /** @param list<ReflectionClass|ReflectionFunctionAbstract> $reflectors */
     public function __construct(
-        Closure $closure,
+        array $reflectors,
         protected readonly ?Container $container,
     ) {
+        $reflectionAttributes = array_merge(
+            ...array_map(fn ($reflector) => $reflector->getAttributes(), $reflectors)
+        );
 
-        $reflector = new ReflectionFunction($closure);
-
-        $this->attributes = array_map(function ($attribute) {
-            return $this->newAttributeInstance($attribute);
-        }, $reflector->getAttributes());
+        $this->attributes = array_map(
+            function ($attribute) {
+                return $this->newAttributeInstance($attribute);
+            },
+            $reflectionAttributes,
+        );
     }
 
+    /** @param ?class-string $filter */
     public function get(?string $filter = null): array
     {
         if ($filter) {
@@ -46,7 +52,7 @@ class AttributesResolver
         $instance = $attribute->newInstance();
         $callAttrs = (new ReflectionObject($instance))->getAttributes(Call::class);
 
-        if (count($callAttrs) > 0 ) {
+        if (count($callAttrs) > 0) {
             $resolver = new CallableResolver(new Creator($this->container));
 
             // See if the attribute itself has one or more Call attributes. If so,
