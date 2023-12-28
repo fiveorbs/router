@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
-use Conia\Route\Exception\NotFoundException;
 use Conia\Route\Exception\MethodNotAllowedException;
+use Conia\Route\Exception\NotFoundException;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Group;
 use Conia\Route\Route;
@@ -18,8 +18,6 @@ class RouterTest extends TestCase
 {
     public function testMatching(): void
     {
-        $this->throws(NotFoundException::class);
-
         $router = new Router();
         $index = new Route('/', fn () => null, 'index');
         $router->addRoute($index);
@@ -30,21 +28,20 @@ class RouterTest extends TestCase
             $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
         }));
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->route->name());
+        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
 
-        $this->assertEquals($index, $router->match($this->request('GET', ''))->route);
-        $this->assertEquals($albums, $router->match($this->request('GET', '/albums'))->route);
-        $this->assertEquals($albums, $router->match($this->request('GET', '/albums?q=Symbolic'))->route);
-        $this->assertEquals('', $router->match($this->request('GET', '/albums/name'))->route->name());
+        $this->assertEquals($index, $router->match($this->request('GET', '')));
+        $this->assertEquals($albums, $router->match($this->request('GET', '/albums')));
+        $this->assertEquals($albums, $router->match($this->request('GET', '/albums?q=Symbolic')));
+        $this->assertEquals('', $router->match($this->request('GET', '/albums/name'))->name());
+    }
 
-        // $router->match($this->request('GET', '/does-not-exist'));
-        // Nonexistent files should not have a cachebuster attached
-        $this->assertMatchesRegularExpression('/https:\/\/chuck.local\/static\/does-not-exist.json$/', $router->staticUrl(
-            '/static',
-            'does-not-exist.json',
-            host: 'https://chuck.local/',
-            bust: true,
-        ));
+    public function testThrowingNotFoundException(): void
+    {
+        $this->throws(NotFoundException::class);
+
+        $router = new Router();
+        $router->match($this->request('GET', '/does-not-exist'));
     }
 
     public function testSimpleMatchingUrlEncoded(): void
@@ -53,8 +50,9 @@ class RouterTest extends TestCase
         $route = new Route('/album name/...slug', fn () => null, 'encoded');
         $router->addRoute($route);
 
-        $this->assertEquals('encoded', $router->match($this->request('GET', '/album%20name/scream%20bloody%20gore')
-        )->route->name());
+        $this->assertEquals('encoded', $router->match(
+            $this->request('GET', '/album%20name/scream%20bloody%20gore')
+        )->name());
         $this->assertEquals('scream bloody gore', $route->args()['slug']);
     }
 
@@ -66,10 +64,10 @@ class RouterTest extends TestCase
         $index = $router->get('/', fn () => null, 'index');
         $albums = $router->post('/albums', fn () => null);
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->route->name());
-        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->route->name());
-        $this->assertEquals($index, $router->match($this->request('GET', ''))->route);
-        $this->assertEquals($albums, $router->match($this->request('POST', '/albums'))->route);
+        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
+        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->name());
+        $this->assertEquals($index, $router->match($this->request('GET', '')));
+        $this->assertEquals($albums, $router->match($this->request('POST', '/albums')));
 
         $router->match($this->request('GET', '/albums'));
     }
@@ -101,11 +99,11 @@ class RouterTest extends TestCase
         $this->assertMatchesRegularExpression('/\?v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json', true));
         $this->assertMatchesRegularExpression('/\?exists=true&v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json?exists=true', true));
         $this->assertMatchesRegularExpression(
-            '/https:\/\/chuck.local\/static\/test.json\?v=[a-f0-9]{8}$/',
+            '/https:\/\/conia.local\/static\/test.json\?v=[a-f0-9]{8}$/',
             $router->staticUrl(
                 '/static',
                 'test.json',
-                host: 'https://chuck.local/',
+                host: 'https://conia.local/',
                 bust: true,
             )
         );
@@ -126,6 +124,20 @@ class RouterTest extends TestCase
         (new Router())->addStatic('/static', $this->root . '/fantasy/dir');
     }
 
+    public function testNonExistingFilesNoCachebuster(): void
+    {
+        $router = new Router();
+        $router->addStatic('/static', $this->root . '/public/static');
+
+        // Non existing files should not have a cachebuster attached
+        $this->assertMatchesRegularExpression('/https:\/\/conia.local\/static\/does-not-exist.json$/', $router->staticUrl(
+            '/static',
+            'does-not-exist.json',
+            host: 'https://conia.local/',
+            bust: true,
+        ));
+    }
+
     public function testStaticRouteDuplicateNamed(): void
     {
         $this->throws(RuntimeException::class, 'Duplicate static route: static');
@@ -144,7 +156,6 @@ class RouterTest extends TestCase
         $router->addStatic('/static', $this->root . '/public/static');
     }
 
-
     #[TestDox("GET matching")]
     public function testGETMatching(): void
     {
@@ -152,7 +163,7 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('GET', '/')));
     }
 
     #[TestDox("HEAD matching")]
@@ -162,7 +173,7 @@ class RouterTest extends TestCase
         $route = Route::head('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
     }
 
     #[TestDox("PUT matching")]
@@ -172,7 +183,7 @@ class RouterTest extends TestCase
         $route = Route::put('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('PUT', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
     }
 
     #[TestDox("POST matching")]
@@ -182,7 +193,7 @@ class RouterTest extends TestCase
         $route = Route::post('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('POST', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('POST', '/')));
     }
 
     #[TestDox("PATCH matching")]
@@ -192,7 +203,7 @@ class RouterTest extends TestCase
         $route = Route::patch('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('PATCH', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('PATCH', '/')));
     }
 
     #[TestDox("DELETE matching")]
@@ -202,7 +213,7 @@ class RouterTest extends TestCase
         $route = Route::delete('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('DELETE', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('DELETE', '/')));
     }
 
     #[TestDox("OPTIONS matching")]
@@ -212,7 +223,7 @@ class RouterTest extends TestCase
         $route = Route::options('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/')));
     }
 
     public function testMatchingWrongMethod(): void
@@ -223,7 +234,7 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('POST', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('POST', '/')));
     }
 
     #[TestDox("Multiple methods matching I")]
@@ -235,8 +246,8 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null)->method('post');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('POST', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('GET', '/')));
+        $this->assertEquals($route, $router->match($this->request('POST', '/')));
         $router->match($this->request('PUT', '/'));
     }
 
@@ -249,8 +260,8 @@ class RouterTest extends TestCase
         $route = (new Route('/', fn () => null))->method('gEt', 'Put');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('PUT', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('GET', '/')));
+        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -263,8 +274,8 @@ class RouterTest extends TestCase
         $route = (new Route('/', fn () => null))->method('get')->method('head');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('GET', '/')));
+        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -274,13 +285,13 @@ class RouterTest extends TestCase
         $route = new Route('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('POST', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('PUT', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('PATCH', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('DELETE', '/'))->route);
-        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/'))->route);
+        $this->assertEquals($route, $router->match($this->request('GET', '/')));
+        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
+        $this->assertEquals($route, $router->match($this->request('POST', '/')));
+        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
+        $this->assertEquals($route, $router->match($this->request('PATCH', '/')));
+        $this->assertEquals($route, $router->match($this->request('DELETE', '/')));
+        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/')));
     }
 
     public function testSamePatternMultipleMethods(): void
@@ -293,9 +304,9 @@ class RouterTest extends TestCase
         $get = (new Route('/', fn () => null, 'get'))->method('GET');
         $router->addRoute($get);
 
-        $this->assertEquals($get, $router->match($this->request('GET', '/'))->route);
-        $this->assertEquals($puthead, $router->match($this->request('PUT', '/'))->route);
-        $this->assertEquals($puthead, $router->match($this->request('HEAD', '/'))->route);
+        $this->assertEquals($get, $router->match($this->request('GET', '/')));
+        $this->assertEquals($puthead, $router->match($this->request('PUT', '/')));
+        $this->assertEquals($puthead, $router->match($this->request('HEAD', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -305,9 +316,9 @@ class RouterTest extends TestCase
         $router->endpoint('/endpoints', TestEndpoint::class, ['id', 'category'])->add();
 
         $requestRoute = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('/endpoints', $requestRoute->route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'post'], $requestRoute->route->view());
-        $this->assertEquals([], $requestRoute->route->args());
+        $this->assertEquals('/endpoints', $requestRoute->pattern());
+        $this->assertEquals([TestEndpoint::class, 'post'], $requestRoute->view());
+        $this->assertEquals([], $requestRoute->args());
     }
 
     public function testAddRoutesWithCallback(): void
@@ -318,7 +329,7 @@ class RouterTest extends TestCase
             $r->post('/albums', fn () => null);
         });
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->route->name());
-        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->route->name());
+        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
+        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->name());
     }
 }
