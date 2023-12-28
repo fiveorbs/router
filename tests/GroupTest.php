@@ -12,6 +12,7 @@ use Conia\Route\Route;
 use Conia\Route\Router;
 use Conia\Route\Tests\Fixtures\TestController;
 use Conia\Route\Tests\Fixtures\TestEndpoint;
+use Conia\Route\Tests\Fixtures\TestMiddleware1;
 use Conia\Route\Tests\Fixtures\TestMiddleware2;
 use Conia\Route\Tests\Fixtures\TestMiddleware3;
 
@@ -113,13 +114,13 @@ class GroupTest extends TestCase
         $group->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
-        $this->assertEquals('json', $route->getRenderer()->type);
+        $this->assertEquals('json', $route->renderer()->type);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
-        $this->assertEquals('template:home.php', $route->getRenderer()->type);
+        $this->assertEquals('template:home.php', $route->renderer()->type);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums'));
-        $this->assertEquals('json', $route->getRenderer()->type);
+        $this->assertEquals('json', $route->renderer()->type);
     }
 
     public function testControllerPrefixing(): void
@@ -157,35 +158,33 @@ class GroupTest extends TestCase
     public function testNestedGroups(): void
     {
         $router = new Router();
+        $mw1 = new TestMiddleware1();
+        $mw2 = new TestMiddleware2();
+        $mw3 = new TestMiddleware3();
 
-        (new Group('/media', function (Group $group) {
+        (new Group('/media', function (Group $group) use ($mw1, $mw2, $mw3) {
             // Create using ::group - will not be created immediately
-            $group->group('/music', function (Group $group) {
+            $group->group('/music', function (Group $group) use ($mw1, $mw2, $mw3) {
                 // Create using ::addGroup - will internally be created immediately
-                $group->addGroup((new Group('/albums', function (Group $group) {
+                $group->addGroup((new Group('/albums', function (Group $group) use ($mw1, $mw3) {
                     // Create using ::group shortcut and create immediately
-                    $group->group('/songs', function (Group $group) {
+                    $group->group('/songs', function (Group $group) use ($mw1) {
                         // Create  in place - checks if it skips already created groups
                         $group->endpoint('/times', TestEndpoint::class, 'id')
                             ->name('times')
-                            ->middleware('times-middleware')
+                            ->middleware($mw1)
                             ->add();
-                    }, 'songs-')->middleware('songs-middleware')->create($group);
-                }, 'albums-'))->middleware('albums-middleware'));
+                    }, 'songs-')->middleware($mw3)->create($group);
+                }, 'albums-'))->middleware($mw2));
             }, 'music-');
-        }, 'media-'))->middleware('media-middleware')->create($router);
+        }, 'media-'))->middleware($mw1)->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/media/music/albums/songs/times/666'));
         $this->assertEquals('media-music-albums-songs-times-get', $route->name());
         $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
         $this->assertEquals('/media/music/albums/songs/times/{id}', $route->pattern());
         $this->assertEquals(['id' => '666'], $route->args());
-        $this->assertEquals([
-            ['media-middleware'],
-            ['albums-middleware'],
-            ['songs-middleware'],
-            ['times-middleware'],
-        ], $route->getMiddleware());
+        $this->assertEquals([$mw1, $mw2, $mw3, $mw1], $route->getMiddleware());
     }
 
     public function testControllerPrefixingErrorUsingClosure(): void
@@ -223,21 +222,21 @@ class GroupTest extends TestCase
             $ctrl = TestController::class;
 
             $group->addRoute(Route::get('', "{$ctrl}::albumList"));
-            $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->middleware(TestMiddleware3::class));
+            $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->middleware(new TestMiddleware3()));
             $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
-        }))->middleware(TestMiddleware2::class);
+        }))->middleware(new TestMiddleware2());
         $group->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
         $middleware = $route->getMiddleware();
         $this->assertEquals(1, count($middleware));
-        $this->assertEquals(TestMiddleware2::class, $middleware[0][0]);
+        $this->assertInstanceof(TestMiddleware2::class, $middleware[0]);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
         $middleware = $route->getMiddleware();
         $this->assertEquals(2, count($middleware));
-        $this->assertEquals(TestMiddleware2::class, $middleware[0][0]);
-        $this->assertEquals(TestMiddleware3::class, $middleware[1][0]);
+        $this->assertInstanceof(TestMiddleware2::class, $middleware[0]);
+        $this->assertInstanceof(TestMiddleware3::class, $middleware[1]);
     }
 
     public function testFailWithoutCallingCreateBefore(): void

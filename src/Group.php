@@ -49,7 +49,7 @@ class Group implements RouteAdder
     {
         $route->prefix($this->patternPrefix, $this->namePrefix);
 
-        if ($this->renderer && empty($route->getRenderer())) {
+        if ($this->renderer && empty($route->renderer())) {
             $route->render($this->renderer);
         }
 
