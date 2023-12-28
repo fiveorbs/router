@@ -4,35 +4,27 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use Closure;
-use Psr\Http\Server\MiddlewareInterface as PsrMiddleware;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
 
 trait AddsMiddleware
 {
-    /** @var list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> */
+    /** @var list<Middleware> */
     protected array $middleware = [];
 
-    /** @psalm-param non-falsy-string|list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware ...$middleware */
-    public function middleware(string|array|Closure|PsrMiddleware ...$middleware): static
+    public function middleware(Middleware ...$middleware): static
     {
-        $this->middleware = array_merge($this->middleware, array_map(function ($mw) {
-            if (is_string($mw)) {
-                return [$mw];
-            }
-
-            return $mw;
-        }, array_values($middleware)));
+        $this->middleware = array_merge($this->middleware, array_values($middleware));
 
         return $this;
     }
 
-    /** @psalm-return list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> */
+    /** @psalm-return list<Middleware> */
     public function getMiddleware(): array
     {
         return $this->middleware;
     }
 
-    /** @psalm-param list<list{non-falsy-string, ...}|Closure|Middleware|PsrMiddleware> $middleware */
+    /** @psalm-param list<Middleware> $middleware */
     public function replaceMiddleware(array $middleware): static
     {
         $this->middleware = $middleware;
