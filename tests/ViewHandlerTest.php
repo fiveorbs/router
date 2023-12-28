@@ -16,7 +16,7 @@ class ViewHandlerTest extends TestCase
         $route = new Route('/', function () {
             $response = $this->responseFactory()->createResponse()
                 ->withHeader('Content-Type', 'text/plain');
-            $response->getBody()->write('Chuck PSR Response');
+            $response->getBody()->write('Conia PSR Response');
 
             return $response;
         });
@@ -25,13 +25,13 @@ class ViewHandlerTest extends TestCase
         $handler = new ViewHandler($view, [], []);
         $response = $handler->handle($this->request());
 
-        $this->assertEquals('Chuck PSR Response', (string)$response->getBody());
+        $this->assertEquals('Conia PSR Response', (string)$response->getBody());
         $this->assertEquals('text/plain', $response->getHeaders()['Content-Type'][0]);
     }
 
     public function testViewResponseRendererWithArgsAndOptions(): void
     {
-        $route = (new Route('/', fn () => ['name' => 'Chuck']))
+        $route = (new Route('/', fn () => ['name' => 'Conia']))
             ->render('test', arg1: 'Arg', arg2: 73);
         $route->match('/');
         $view = new View($route, null);
@@ -40,13 +40,13 @@ class ViewHandlerTest extends TestCase
         ], []);
         $response = $handler->handle($this->request());
 
-        $this->assertEquals('{"name":"Chuck","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}', (string)$response->getBody());
+        $this->assertEquals('{"name":"Conia","arg1":"Arg","arg2":73,"option1":13,"option2":"Option"}', (string)$response->getBody());
         $this->assertEquals('application/json', $response->getHeaders()['Content-Type'][0]);
     }
 
     public function testViewResponseRendererWithOptionsClosure(): void
     {
-        $route = (new Route('/', fn () => ['name' => 'Chuck']))->render('test');
+        $route = (new Route('/', fn () => ['name' => 'Conia']))->render('test');
         $route->match('/');
         $view = new View($route, null);
         $handler = new ViewHandler($view, [
@@ -54,7 +54,7 @@ class ViewHandlerTest extends TestCase
         ], []);
         $response = $handler->handle($this->request());
 
-        $this->assertEquals('{"name":"Chuck","option1":13,"option2":"Option"}', (string)$response->getBody());
+        $this->assertEquals('{"name":"Conia","option1":13,"option2":"Option"}', (string)$response->getBody());
         $this->assertEquals('application/json', $response->getHeaders()['Content-Type'][0]);
     }
 }

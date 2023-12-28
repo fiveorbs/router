@@ -16,7 +16,7 @@ class ViewTest extends TestCase
 {
     public function testAttribute(): void
     {
-        $route = new Route('/', #[TestAttribute] fn () => 'chuck');
+        $route = new Route('/', #[TestAttribute] fn () => 'conia');
         $view = new View($route, null);
 
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
@@ -25,10 +25,10 @@ class ViewTest extends TestCase
     #
     public function testClosure(): void
     {
-        $route = new Route('/', fn () => 'chuck');
+        $route = new Route('/', fn () => 'conia');
         $view = new View($route, null);
 
-        $this->assertEquals('chuck', $view->execute($this->request()));
+        $this->assertEquals('conia', $view->execute($this->request()));
     }
 
     public function testFunction(): void
@@ -71,7 +71,7 @@ class ViewTest extends TestCase
 
     public function testAttributeFilteringCallableView(): void
     {
-        $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'chuck');
+        $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'conia');
         $view = new View($route, null);
 
         $this->assertEquals(3, count($view->attributes()));
