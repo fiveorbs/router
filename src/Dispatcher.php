@@ -4,60 +4,29 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use Conia\Registry\Registry;
-use Conia\Route\Factory;
+use Conia\Route\Renderer\Renderer;
+use Conia\Route\View;
+use Conia\Route\ViewHandler;
+use Psr\Container\ContainerInterface as Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 class Dispatcher
 {
-    protected Factory $factory;
+    use AddsMiddleware;
 
-    public function __construct(
-        protected readonly array $queue,
-        Registry $registry
-    ) {
-        $factory = $registry->get(Factory::class);
-        assert($factory instanceof Factory);
-        $this->factory = $factory;
-    }
+    /** @param array<string, Renderer> $renderers */
+    protected array $renderers = [];
 
-    /**
-     * Recursively calls the callables in the middleware/view handler queue
-     * and then the view callable.
-     */
-    public function handle(array $queue, Request $request): Response
+    public function renderer(string $key, Renderer $renderer): void
     {
-        /** @psalm-var non-empty-list<Middleware|PsrMiddleware|ViewHandler> $queue */
-        $handler = $queue[0];
-
-        if ($handler instanceof Middleware) {
-            return $handler->process(
-                $request->psr(),
-                // Create an anonymous PSR-15 RequestHandler
-                new class ($this, array_slice($queue, 1)) implements RequestHandler {
-                    public function __construct(
-                        protected readonly Dispatcher $dispatcher,
-                        protected readonly array $queue
-                    ) {
-                    }
-
-                    public function handle(ServerRequest $request): PsrResponse
-                    {
-                        return $this->dispatcher->handle($this->queue, new Request($request));
-                    }
-                }
-            );
-        }
-
-        return $handler();
+        $this->renderers[$key] = $renderer;
     }
 
-    public function dispatch(
-        Request $request,
-    ): PsrResponse {
-        return $this->handle($this->queue, $request);
+    public function dispatch(Request $request, Route $route, ?Container $container = null): Response
+    {
+        $handler = new ViewHandler(new View($route, $container), $this->middleware, $this->renderers);
+
+        return $handler->handle($request);
     }
 }
