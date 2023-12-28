@@ -17,6 +17,7 @@ use Throwable;
 class Router implements RouteAdder
 {
     use AddsRoutes;
+    use AddsMiddleware;
 
     protected const ALL = 'ALL';
 
@@ -193,12 +194,16 @@ class Router implements RouteAdder
     protected function getCacheBuster(string $dir, string $path): string
     {
         $ds = DIRECTORY_SEPARATOR;
-        $file = $dir . $ds . ltrim(str_replace('/', $ds, $path), $ds);
+        $file = realpath($dir . $ds . ltrim(str_replace('/', $ds, $path), $ds));
 
-        try {
-            return hash('xxh32', (string)filemtime($file));
-        } catch (Throwable) {
-            return '';
+        if ($file) {
+            try {
+                return hash('xxh32', (string)filemtime($file));
+            } catch (Throwable) {
+                return '';
+            }
         }
+
+        return '';
     }
 }
