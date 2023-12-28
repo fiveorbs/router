@@ -128,7 +128,7 @@ class Route
         return $this;
     }
 
-    public function getRenderer(): ?RendererConfig
+    public function renderer(): ?RendererConfig
     {
         return $this->renderer;
     }

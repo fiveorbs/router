@@ -5,81 +5,51 @@ declare(strict_types=1);
 namespace Conia\Route;
 
 use Closure;
-use Conia\Registry\Registry;
-use Conia\Registry\Resolver;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Renderer\Config as RendererConfig;
-use Conia\Route\Renderer\Render;
-use Conia\Route\Renderer\Renderer;
 use Conia\Route\Route;
-use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ResponseInterface as Response;
-use ReflectionAttribute;
+use Conia\Wire\Creator;
+use Psr\Container\ContainerExceptionInterface as ContainerException;
+use Psr\Container\ContainerInterface as Container;
+use Psr\Container\NotFoundExceptionInterface as NotFoundException;
+use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionObject;
+use ReflectionParameter;
 use Throwable;
 
 class View
 {
-    protected ?array $attributes = null;
-    protected Closure $closure;
+    protected Creator $creator;
+    protected ?AttributesResolver $attributes = null;
+    protected ?Closure $closure = null;
+    protected ?ReflectionMethod $controllerConstructor = null;
+    protected Closure|array $view;
 
     public function __construct(
-        callable|string|array $view,
-        protected readonly array $routeArgs,
-        protected readonly Registry $registry
+        protected readonly Route $route,
+        protected readonly ?Container $container,
     ) {
-        if (is_callable($view)) {
-            /** @var callable $view -- Psalm complains even though we use is_callable() */
-            $this->closure = Closure::fromCallable($view);
-        } else {
-            $this->closure = $this->getClosure($view);
-        }
+        $this->creator = new Creator($container);
+        $this->view = $this->prepareView($route->view());
     }
 
-    public function execute(): mixed
+    public function execute(Request $request): mixed
     {
-        return ($this->closure)(...$this->getArgs(
-            self::getReflectionFunction($this->closure)
+        $closure = $this->getClosure($request);
+
+        return ($closure)(...$this->getArgs(
+            self::getReflectionFunction($closure),
+            $request,
         ));
     }
 
-    public function respond(
-        Route $route,
-        Registry $registry,
-    ): Response {
-        /**
-         * @psalm-suppress MixedAssignment
-         *
-         * Later in the function we check the type of $result.
-         */
-        $result = $this->execute();
-
-        if ($result instanceof Response) {
-            return $result;
-        }
-
-        $renderAttributes = $this->attributes(Render::class);
-
-        if (count($renderAttributes) > 0) {
-            assert($renderAttributes[0] instanceof Render);
-
-            return $renderAttributes[0]->response($registry, $result)->psr();
-        }
-
-        $rendererConfig = $route->getRenderer();
-
-        if ($rendererConfig) {
-            return $this->respondFromRenderer($registry, $rendererConfig, $result);
-        }
-
-        throw new RuntimeException('Unable to determine a response handler for the returned value of the view');
-    }
-
-    public static function getReflectionFunction(
+    protected static function getReflectionFunction(
         callable $callable
     ): ReflectionFunction|ReflectionMethod {
         if ($callable instanceof Closure) {
@@ -97,44 +67,30 @@ class View
     /** @psalm-param $filter ?class-string */
     public function attributes(string $filter = null): array
     {
-        $reflector = new ReflectionFunction($this->closure);
-
         if (!isset($this->attributes)) {
-            $this->attributes = array_map(function ($attribute) {
-                return $this->newAttributeInstance($attribute);
-            }, $reflector->getAttributes());
+            if (is_callable($this->view)) {
+                $this->attributes = new AttributesResolver([self::getReflectionFunction($this->view)], $this->container);
+            } else {
+                [$controller, $method] = $this->view;
+                $reflectionClass = new ReflectionClass($controller);
+                $this->attributes = new AttributesResolver([
+                    $reflectionClass,
+                    $reflectionClass->getMethod($method),
+                ], $this->container);
+            }
+
         }
 
-        if ($filter) {
-            return array_values(
-                array_filter($this->attributes, function ($attribute) use ($filter) {
-                    return $attribute instanceof $filter;
-                })
-            );
+        return $this->attributes->get($filter);
+    }
+
+    protected function prepareView(callable|string|array $view): Closure|array
+    {
+        if (is_callable($view)) {
+            /** @var callable $view -- Psalm complains even though we use is_callable() */
+            return Closure::fromCallable($view);
         }
 
-        return $this->attributes;
-    }
-
-    protected function newAttributeInstance(ReflectionAttribute $attribute): object
-    {
-        return (new Resolver($this->registry))
-            ->resolveCallAttributes($attribute->newInstance());
-    }
-
-    protected function respondFromRenderer(
-        Registry $registry,
-        RendererConfig $rendererConfig,
-        mixed $result,
-    ): Response {
-        $renderer = $registry->tag(Renderer::class)->get($rendererConfig->type);
-        assert($renderer instanceof Renderer);
-
-        return $renderer->response($result, ...$rendererConfig->args);
-    }
-
-    protected function getClosure(array|string $view): Closure
-    {
         if (is_array($view)) {
             [$controllerName, $method] = $view;
             assert(is_string($controllerName));
@@ -148,20 +104,30 @@ class View
         }
 
         if (class_exists($controllerName)) {
-            $rc = new ReflectionClass($controllerName);
-            $constructor = $rc->getConstructor();
-            $args = $constructor ? $this->getArgs($constructor) : [];
-            $controller = $rc->newInstance(...$args);
-
-            if (method_exists($controller, $method)) {
-                return Closure::fromCallable([$controller, $method]);
-            }
-            $view = $controllerName . '::' . $method;
-
-            throw new RuntimeException("View method not found {$view}");
+            return [$controllerName, $method];
         }
 
         throw new RuntimeException("Controller not found {$controllerName}");
+    }
+
+    protected function getClosure(Request $request): Closure
+    {
+        if ($this->view instanceof Closure) {
+            return $this->view;
+        }
+
+        [$controllerName, $method] = $this->view;
+        $rc = new ReflectionClass($controllerName);
+        $constructor = $rc->getConstructor();
+        $args = $constructor ? $this->getArgs($constructor, $request) : [];
+        $controller = $rc->newInstance(...$args);
+
+        if (method_exists($controller, $method)) {
+            return Closure::fromCallable([$controller, $method]);
+        }
+        $view = $controllerName . '::' . $method;
+
+        throw new RuntimeException("View method not found {$view}");
     }
 
     /**
@@ -171,13 +137,13 @@ class View
      * - If names of the view parameters match names of the route arguments
      *   it will try to convert the argument to the parameter type and add it to
      *   the returned args list.
-     * - If the parameter is typed, try to resolve it via registry or
+     * - If the parameter is typed, try to resolve it via container or
      *   autowiring.
      * - Otherwise fail.
      *
      * @psalm-suppress MixedAssignment -- $args values are mixed
      */
-    protected function getArgs(ReflectionFunctionAbstract $rf): array
+    protected function getArgs(ReflectionFunctionAbstract $rf, Request $request): array
     {
         /** @var array<string, mixed> */
         $args = [];
@@ -186,34 +152,101 @@ class View
 
         foreach ($params as $param) {
             $name = $param->getName();
+            $routeArgs = $this->route->args();
 
             try {
                 $args[$name] = match ((string)$param->getType()) {
-                    'int' => is_numeric($this->routeArgs[$name]) ?
-                        (int)$this->routeArgs[$name] :
+                    'int' => is_numeric($routeArgs[$name]) ?
+                        (int)$routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '{$name}' to int"),
-                    'float' => is_numeric($this->routeArgs[$name]) ?
-                        (float)$this->routeArgs[$name] :
+                    'float' => is_numeric($routeArgs[$name]) ?
+                        (float)$routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '{$name}' to float"),
-                    'string' => $this->routeArgs[$name],
-                    default => (new Resolver($this->registry))->resolveParam($param),
+                    'string' => $routeArgs[$name],
+                    default => $this->resolveParam($param, $request),
                 };
-            } catch (NotFoundExceptionInterface $e) {
-                throw $e;
             } catch (Throwable $e) {
                 // Check if the view parameter has a default value
-                if (!array_key_exists($name, $this->routeArgs) && $param->isDefaultValueAvailable()) {
+                if (!array_key_exists($name, $routeArgs) && $param->isDefaultValueAvailable()) {
                     $args[$name] = $param->getDefaultValue();
 
                     continue;
                 }
 
-                throw new RuntimeException($errMsg . $e->getMessage());
+                throw new ($e::class)($errMsg . $e->getMessage(), $e->getCode(), $e);
             }
         }
 
         assert(count($params) === count($args));
 
         return $args;
+    }
+
+    protected function resolveParam(ReflectionParameter $param, Request $request): mixed
+    {
+        $type = $param->getType();
+
+        if ($type instanceof Request) {
+            return $request;
+        }
+
+        if ($type instanceof Route) {
+            return $this->route;
+        }
+
+        if ($type instanceof ReflectionNamedType) {
+            try {
+                return $this->creator->create(ltrim($type->getName(), '?'));
+            } catch (NotFoundException | ContainerException  $e) {
+                if ($param->isDefaultValueAvailable()) {
+                    return $param->getDefaultValue();
+                }
+
+                throw $e;
+            }
+        } else {
+            if ($type) {
+                throw new ContainerException(
+                    "Autowiring does not support union or intersection types. Source: \n" .
+                        $this->paramInfo($param)
+                );
+            }
+
+            throw new ContainerException(
+                "Autowired entities need to have typed constructor parameters. Source: \n" .
+                    $this->paramInfo($param)
+            );
+        }
+    }
+
+    public function paramInfo(ReflectionParameter $param): string
+    {
+        $type = $param->getType();
+        $rf = $param->getDeclaringFunction();
+        $rc = null;
+
+        if ($rf instanceof ReflectionMethod) {
+            $rc = $rf->getDeclaringClass();
+        }
+
+        return ($rc ? $rc->getName() . '::' : '') .
+            ($rf->getName() . '(..., ') .
+            ($type ? (string)$type . ' ' : '') .
+            '$' . $param->getName() . ', ...)';
+    }
+
+    public function middleware(): array
+    {
+        $middlewareAttributes = $this->attributes(Middleware::class);
+
+        return array_merge(
+            $this->route->getMiddleware(),
+            $middlewareAttributes,
+        );
+    }
+
+    public function renderer(): ?RendererConfig
+    {
+        return $this->route->renderer();
     }
 }

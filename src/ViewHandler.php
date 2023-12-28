@@ -6,27 +6,48 @@ namespace Conia\Route;
 
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Renderer\Render;
-use Conia\Route\Route;
+use Conia\Route\Renderer\Renderer;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface as Middleware;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
-class ViewHandler
+class ViewHandler implements RequestHandler
 {
+    /** @param list<Middleware> $middleware */
+    protected array $middleware;
+
+    /**
+     * @param array<string, Renderer> $renderers
+     * @param list<Middleware> $renderers
+     */
     public function __construct(
         protected readonly View $view,
-        protected readonly Route $route,
-        /** @param list<Conia\Route\Renderer\Renderer> */
         protected readonly array $renderers,
+        array $globalMiddleware,
     ) {
+        $this->middleware = array_merge($globalMiddleware, $view->middleware());
     }
 
-    public function __invoke(): Response
+    public function handle(Request $request): Response
+    {
+        if (0 === count($this->middleware)) {
+            return $this->execute($request);
+        }
+
+        $middleware = array_shift($this->middleware);
+
+        return $middleware->process($request, $this);
+    }
+
+    protected function execute(Request $request): Response
     {
         /**
          * @psalm-suppress MixedAssignment
          *
          * Type checking takes place in the renderers code.
          */
-        $data = $this->view->execute();
+        $data = $this->view->execute($request);
 
         if ($data instanceof Response) {
             return $data;
@@ -40,7 +61,7 @@ class ViewHandler
             return $this->respondFromRenderer($data, $renderAttributes[0]->type, $renderAttributes[0]->args);
         }
 
-        $rendererConfig = $this->route->getRenderer();
+        $rendererConfig = $this->view->renderer();
 
         if ($rendererConfig) {
             return $this->respondFromRenderer($data, $rendererConfig->type, $rendererConfig->args);
