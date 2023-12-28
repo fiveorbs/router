@@ -211,11 +211,11 @@ class RouteTest extends TestCase
     public function testRouteMiddleware(): void
     {
         $route = Route::get('/', fn () => 'chuck');
-        $route->middleware(TestMiddleware1::class);
-        $route->middleware(TestMiddleware2::class);
+        $route->middleware(new TestMiddleware1());
+        $route->middleware(new TestMiddleware2());
         $middleware = $route->getMiddleware();
 
-        $this->assertEquals(TestMiddleware1::class, $middleware[0][0]);
-        $this->assertEquals(TestMiddleware2::class, $middleware[1][0]);
+        $this->assertInstanceof(TestMiddleware1::class, $middleware[0]);
+        $this->assertInstanceof(TestMiddleware2::class, $middleware[1]);
     }
 }
