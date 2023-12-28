@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Conia\Route;
 
 use Closure;
-use Conia\Route\AddsMiddleware;
-use Conia\Route\AddsRoutes;
 use Conia\Route\Exception\MethodNotAllowedException;
 use Conia\Route\Exception\NotFoundException;
 use Conia\Route\Exception\RuntimeException;
@@ -19,7 +17,6 @@ use Throwable;
 class Router implements RouteAdder
 {
     use AddsRoutes;
-    use AddsMiddleware;
 
     protected const ALL = 'ALL';
 
@@ -152,7 +149,7 @@ class Router implements RouteAdder
         throw new NotFoundException('Route not found: ' . $__routeName__);
     }
 
-    public function match(Request $request): RequestRoute
+    public function match(Request $request): Route
     {
         $url = rawurldecode($request->getUri()->getPath());
         $requestMethod = $request->getMethod();
@@ -160,7 +157,7 @@ class Router implements RouteAdder
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
                 if ($route->match($url)) {
-                    return new RequestRoute($route, $request);
+                    return $route;
                 }
             }
         }
