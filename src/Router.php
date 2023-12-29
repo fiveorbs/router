@@ -23,7 +23,6 @@ class Router implements RouteAdder
 
     protected string $cacheFile = '';
     protected bool $shouldCache = false;
-    protected ?Route $route = null;
 
     /** @psalm-var array<string, list<Route>> */
     protected array $routes = [];
@@ -33,15 +32,6 @@ class Router implements RouteAdder
 
     /** @var array<string, Route> */
     protected array $names = [];
-
-    public function getRoute(): Route
-    {
-        if (is_null($this->route)) {
-            throw new RuntimeException('Route is not initialized');
-        }
-
-        return $this->route;
-    }
 
     /** @psalm-param Closure(Router $router):void $creator */
     public function routes(Closure $creator, string $cacheFile = '', bool $shouldCache = true): void

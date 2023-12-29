@@ -267,13 +267,6 @@ class RouterTest extends TestCase
         $this->assertEquals('', $router->match($this->request('POST', '/albums'))->name());
     }
 
-    public function testAccessUninitializedRoute(): void
-    {
-        $this->throws(RuntimeException::class, 'Route is not initialized');
-
-        (new Router())->getRoute();
-    }
-
     public function testDuplicateRouteName(): void
     {
         $this->throws(RuntimeException::class, 'Duplicate route: index');
