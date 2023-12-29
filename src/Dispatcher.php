@@ -23,6 +23,11 @@ class Dispatcher
         $this->renderers[$key] = $renderer;
     }
 
+    public function renderers(): array
+    {
+        return $this->renderers;
+    }
+
     public function dispatch(Request $request, Route $route, ?Container $container = null): Response
     {
         $handler = new ViewHandler(new View($route, $container), $this->middleware, $this->renderers);
