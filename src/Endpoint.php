@@ -12,7 +12,6 @@ class Endpoint
 {
     use AddsMiddleware;
 
-    protected array $attrs = [];
     protected string $name = '';
     protected RendererConfig $renderer;
 
@@ -72,13 +71,6 @@ class Endpoint
         return $this->renderer;
     }
 
-    public function attrs(mixed ...$attrs): static
-    {
-        $this->attrs = $attrs;
-
-        return $this;
-    }
-
     protected function addRoutes(
         string $plural,
         string $singular,
@@ -106,7 +98,6 @@ class Endpoint
                     ->method($httpMethod)
                     ->middleware(...$this->middleware)
                     ->render($this->renderer->type, ...$this->renderer->args)
-                    ->attrs(...$this->attrs)
             );
         }
     }

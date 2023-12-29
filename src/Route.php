@@ -23,12 +23,10 @@ class Route
     use AddsMiddleware;
 
     protected array $args = [];
+    protected ?RendererConfig $renderer = null;
 
     /** @psalm-var null|list<string> */
     protected ?array $methods = null;
-
-    protected ?RendererConfig $renderer = null;
-    protected array $attributes = [];
 
     /** @psalm-var Closure|list{string, string}|string */
     protected Closure|array|string $view;
@@ -153,18 +151,6 @@ class Route
         return $this->name;
     }
 
-    public function attrs(mixed ...$attrs): static
-    {
-        $this->attributes = $attrs;
-
-        return $this;
-    }
-
-    public function getAttrs(): array
-    {
-        return $this->attributes;
-    }
-
     /**
      * @psalm-suppress MixedAssignment
      *
@@ -193,6 +179,7 @@ class Route
              * complains anyway.
              */
             foreach ($args as $name => $value) {
+                // TODO: throw error if args do not match url params
                 if (is_scalar($value) or ($value instanceof Stringable)) {
                     // basic variables
                     $url = preg_replace(

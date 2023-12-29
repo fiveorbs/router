@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
-use Conia\Registry\Exception\ContainerException;
+use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Route;
 use Conia\Route\Tests\Fixtures\TestAttribute;
 use Conia\Route\Tests\Fixtures\TestAttributeDiff;
@@ -67,6 +67,23 @@ class ViewTest extends TestCase
 
         $this->assertEquals('text', $view->execute($this->request()));
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
+    }
+
+    public function testInvokableClass(): void
+    {
+        $route = new Route('/', 'Conia\Route\Tests\Fixtures\TestInvokableClass');
+        $view = new View($route, null);
+
+        $this->assertEquals('Invokable', $view->execute($this->request()));
+    }
+
+    public function testNonexistentControllerView(): void
+    {
+        $this->throws(RuntimeException::class, 'View method not found');
+
+        $route = new Route('/', TestController::class . '::nonexistentView');
+        $view = new View($route, null);
+        $view->execute($this->request());
     }
 
     public function testAttributeFilteringCallableView(): void

@@ -27,8 +27,10 @@ class RouteTest extends TestCase
 
         $this->assertEquals($route, $route->match('/chuck'));
         $this->assertEquals(null, $route->match('/rick'));
+    }
 
-        // Definition without leading slash
+    public function testSimpleMatchingWithoutLeadingSlash(): void
+    {
         $route = new Route('chuck/and/rick', fn () => null);
 
         $this->assertEquals($route, $route->match('/chuck/and/rick'));
@@ -84,7 +86,7 @@ class RouteTest extends TestCase
 
     public function testParameterMatchingBraceErrorI(): void
     {
-        $this->throws(ValueError::class);
+        $this->throws(ValueError::class, 'Escaped braces are not allowed');
 
         // Invalid escaped left braces
         $route = new Route('/contributed/{from:\{\d+}', fn () => null);
@@ -93,7 +95,7 @@ class RouteTest extends TestCase
 
     public function testParameterMatchingBraceErrorII(): void
     {
-        $this->throws(ValueError::class);
+        $this->throws(ValueError::class, 'Escaped braces are not allowed:');
 
         // Invalid escaped right braces
         $route = new Route('/contributed/{from:\d+\}}', fn () => null);
@@ -102,7 +104,7 @@ class RouteTest extends TestCase
 
     public function testParameterMatchingBraceErrorIII(): void
     {
-        $this->throws(ValueError::class);
+        $this->throws(ValueError::class, 'Unbalanced braces in route pattern:');
 
         // Invalid unbalanced braces
         $route = new Route('/contributed/{from:\d+{1,2}{}', fn () => null);
@@ -160,17 +162,11 @@ class RouteTest extends TestCase
         $route = Route::get('albums', fn () => 'chuck', 'albums')->prefix('api/', 'api::');
         $this->assertEquals('api/albums', $route->pattern());
         $this->assertEquals('api::albums', $route->name());
+        $this->assertEquals($route, $route->match('/api/albums'));
 
         $route = Route::get('albums', fn () => 'chuck', 'albums')->prefix(name: 'api::');
         $this->assertEquals($route, $route->match('/albums'));
         $this->assertEquals('api::albums', $route->name());
-    }
-
-    public function testRouteAttributes(): void
-    {
-        $route = (new Route('/', 'chuck'))->attrs(option: true);
-
-        $this->assertEquals(['option' => true], $route->getAttrs());
     }
 
     public function testGetViewClosure(): void

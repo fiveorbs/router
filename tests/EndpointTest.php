@@ -171,45 +171,6 @@ class EndpointTest extends TestCase
         $this->assertEquals('albums-put', $route->name());
     }
 
-    public function testEndpointWithAttributes(): void
-    {
-        $router = new Router();
-        (new Endpoint($router, '/endpoints', TestEndpoint::class, 'id'))->attrs(cat: 'albums')->add();
-
-        $route = $router->match($this->request('DELETE', '/endpoints'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('DELETE', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('GET', '/endpoints'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('GET', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('HEAD', '/endpoints'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('HEAD', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('OPTIONS', '/endpoints'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('OPTIONS', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('PATCH', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-
-        $route = $router->match($this->request('PUT', '/endpoints/13'));
-        $this->assertEquals(['cat' => 'albums'], $route->getAttrs());
-    }
-
     public function testEndpointDefaultRenderer(): void
     {
         $router = new Router();
