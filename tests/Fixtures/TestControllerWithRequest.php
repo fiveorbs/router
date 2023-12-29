@@ -13,16 +13,15 @@ class TestControllerWithRequest
     {
     }
 
-    public function wrongReturnType(): mixed
-    {
-        // This provokes a json_encode error
-        return stream_context_create();
-    }
-
     #[Render('text')]
-    public function requestOnly(): string
+    public function requestOnlyRendered(): string
     {
         return $this->request::class;
+    }
+
+    public function requestOnly(): Request
+    {
+        return $this->request;
     }
 
     public function routeParams(string $string, float $float, int $int): array

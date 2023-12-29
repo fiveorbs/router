@@ -10,6 +10,9 @@ use Conia\Route\Tests\Fixtures\TestAttribute;
 use Conia\Route\Tests\Fixtures\TestAttributeDiff;
 use Conia\Route\Tests\Fixtures\TestAttributeExt;
 use Conia\Route\Tests\Fixtures\TestController;
+use Conia\Route\Tests\Fixtures\TestControllerWithRequest;
+use Conia\Route\Tests\Fixtures\TestControllerWithRequestAndRoute;
+use Conia\Route\Tests\Fixtures\TestControllerWithRoute;
 use Conia\Route\View;
 
 class ViewTest extends TestCase
@@ -84,6 +87,42 @@ class ViewTest extends TestCase
         $route = new Route('/', TestController::class . '::nonexistentView');
         $view = new View($route, null);
         $view->execute($this->request());
+    }
+
+    public function testNonexistentController(): void
+    {
+        $this->throws(RuntimeException::class, 'Controller not found');
+
+        $route = new Route('/', NonexisitentTestController::class . '::nonexistentView');
+        $view = new View($route, null);
+        $view->execute($this->request());
+    }
+
+    public function testControllerWithRequestInConstructor(): void
+    {
+        $request = $this->request();
+        $route = new Route('/', TestControllerWithRequest::class . '::requestOnly');
+        $view = new View($route, null);
+
+        $this->assertEquals($request, $view->execute($request));
+    }
+
+    public function testControllerWithRouteInConstructor(): void
+    {
+        $route = new Route('/', TestControllerWithRoute::class . '::routeOnly');
+        $view = new View($route, null);
+
+        $this->assertEquals($route, $view->execute($this->request()));
+    }
+
+    public function testControllerWithRequestRouteAndParamInConstructor(): void
+    {
+        $request = $this->request();
+        $route = new Route('/{param}', TestControllerWithRequestAndRoute::class . '::requestAndRoute');
+        $route->match('/conia');
+        $view = new View($route, null);
+
+        $this->assertEquals([$request, $route, 'conia'], $view->execute($request));
     }
 
     public function testAttributeFilteringCallableView(): void

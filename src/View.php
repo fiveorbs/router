@@ -25,7 +25,6 @@ class View
     protected Creator $creator;
     protected ?AttributesResolver $attributes = null;
     protected ?Closure $closure = null;
-    protected ?ReflectionMethod $controllerConstructor = null;
     protected Closure|array $view;
 
     public function __construct(
@@ -168,17 +167,19 @@ class View
     {
         $type = $param->getType();
 
-        if ($type instanceof Request) {
-            return $request;
-        }
-
-        if ($type instanceof Route) {
-            return $this->route;
-        }
-
         if ($type instanceof ReflectionNamedType) {
+            $typeName = ltrim($type->getName(), '?');
+
+            if ($typeName === Request::class || is_subclass_of($typeName, Request::class)) {
+                return $request;
+            }
+
+            if ($typeName === Route::class || is_subclass_of($typeName, Route::class)) {
+                return $this->route;
+            }
+
             try {
-                return $this->creator->create(ltrim($type->getName(), '?'));
+                return $this->creator->create($typeName);
             } catch (NotFoundException | ContainerException  $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();
