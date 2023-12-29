@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
+use Conia\Route\Exception\RuntimeException;
 use Conia\Route\Route;
+use Conia\Route\Tests\Fixtures\TestController;
 use Conia\Route\Tests\Fixtures\TestRendererArgsOptions;
 use Conia\Route\View;
 use Conia\Route\ViewHandler;
@@ -56,5 +58,15 @@ class ViewHandlerTest extends TestCase
 
         $this->assertEquals('{"name":"Conia","option1":13,"option2":"Option"}', (string)$response->getBody());
         $this->assertEquals('application/json', $response->getHeaders()['Content-Type'][0]);
+    }
+
+    public function testWrongViewReturnType(): void
+    {
+        $this->throws(RuntimeException::class, 'Unable to determine a response handler');
+
+        $route = new Route('/', TestController::class . '::wrongReturnType');
+        $view = new View($route, null);
+        $handler = new ViewHandler($view, [], []);
+        $handler->handle($this->request());
     }
 }

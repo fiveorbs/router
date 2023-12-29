@@ -62,4 +62,9 @@ class TestController
             'int' => $int,
         ];
     }
+
+    public function wrongReturnType(): mixed
+    {
+        return stream_context_create();
+    }
 }
