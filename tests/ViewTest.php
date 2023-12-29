@@ -14,6 +14,7 @@ use Conia\Route\Tests\Fixtures\TestControllerWithRequest;
 use Conia\Route\Tests\Fixtures\TestControllerWithRequestAndRoute;
 use Conia\Route\Tests\Fixtures\TestControllerWithRoute;
 use Conia\Route\View;
+use GdImage;
 
 class ViewTest extends TestCase
 {
@@ -167,6 +168,46 @@ class ViewTest extends TestCase
             'string' => 'symbolic',
             'int' => 13,
         ], $view->execute($this->request()));
+    }
+
+    public function testViewWithWrongRouteParams(): void
+    {
+        $this->throws(RuntimeException::class, 'cannot be resolved');
+
+        $route = new Route('/{wrong}/{param}', TestControllerWithRequest::class . '::routeParams');
+        $route->match('/symbolic/test');
+        $view = new View($route, null);
+        $view->execute($this->request());
+    }
+
+    public function testViewWithWrongTypeForIntParam(): void
+    {
+        $this->throws(RuntimeException::class, "Cannot cast 'int' to int");
+
+        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route->match('/symbolic/7.13-wrong');
+        $view = new View($route, null);
+        $view->execute($this->request());
+    }
+
+    public function testViewWithWrongTypeForFloatParam(): void
+    {
+        $this->throws(RuntimeException::class, "Cannot cast 'float' to float");
+
+        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route->match('/symbolic/wrong-13');
+        $view = new View($route, null);
+        $view->execute($this->request());
+    }
+
+    public function testViewWithUnsupportedParam(): void
+    {
+        $this->throws(RuntimeException::class, 'Unresolvable: GdImage');
+
+        $route = new Route('/{name}', fn (GdImage $name) => $name);
+        $route->match('/symbolic');
+        $view = new View($route, null);
+        $view->execute($this->request());
     }
 
     public function testAttributeFilteringCallableView(): void

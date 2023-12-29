@@ -146,26 +146,30 @@ class View
                         (float)$routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '{$name}' to float"),
                     'string' => $routeArgs[$name],
+                    default => $this->resolveUnknown($param, $request, $errMsg),
                 };
             } else {
-                try {
-                    $args[$name] = $this->resolveParam($param, $request);
-                } catch (Throwable $e) {
-                    // Check if the view parameter has a default value
-                    if ($param->isDefaultValueAvailable()) {
-                        $args[$name] = $param->getDefaultValue();
-
-                        continue;
-                    }
-
-                    throw new ($e::class)($errMsg . $e->getMessage(), $e->getCode(), $e);
-                }
+                $args[$name] = $this->resolveUnknown($param, $request, $errMsg);
             }
         }
 
         assert(count($params) === count($args));
 
         return $args;
+    }
+
+    protected function resolveUnknown(ReflectionParameter $param, Request $request, string $errMsg): mixed
+    {
+        try {
+            return $this->resolveParam($param, $request);
+        } catch (Throwable $e) {
+            // Check if the view parameter has a default value
+            if ($param->isDefaultValueAvailable()) {
+                return $param->getDefaultValue();
+            }
+
+            throw new RuntimeException($errMsg . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     protected function resolveParam(ReflectionParameter $param, Request $request): mixed
