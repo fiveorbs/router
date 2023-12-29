@@ -115,11 +115,13 @@ class View
      * Determines the arguments passed to the view and/or controller constructor.
      *
      * - If a view parameter implements Request, the request will be passed.
+     * - If a view parameter is a subclass of Route, the route will be passed.
      * - If names of the view parameters match names of the route arguments
      *   it will try to convert the argument to the parameter type and add it to
      *   the returned args list.
      * - If the parameter is typed, try to resolve it via container or
      *   autowiring.
+     * - If a parameter has a default value, it will be used.
      * - Otherwise fail.
      *
      * @psalm-suppress MixedAssignment -- $args values are mixed
@@ -135,7 +137,7 @@ class View
             $name = $param->getName();
             $routeArgs = $this->route->args();
 
-            try {
+            if (array_key_exists($name, $routeArgs)) {
                 $args[$name] = match ((string)$param->getType()) {
                     'int' => is_numeric($routeArgs[$name]) ?
                         (int)$routeArgs[$name] :
@@ -144,17 +146,20 @@ class View
                         (float)$routeArgs[$name] :
                         throw new RuntimeException($errMsg . "Cannot cast '{$name}' to float"),
                     'string' => $routeArgs[$name],
-                    default => $this->resolveParam($param, $request),
                 };
-            } catch (Throwable $e) {
-                // Check if the view parameter has a default value
-                if (!array_key_exists($name, $routeArgs) && $param->isDefaultValueAvailable()) {
-                    $args[$name] = $param->getDefaultValue();
+            } else {
+                try {
+                    $args[$name] = $this->resolveParam($param, $request);
+                } catch (Throwable $e) {
+                    // Check if the view parameter has a default value
+                    if ($param->isDefaultValueAvailable()) {
+                        $args[$name] = $param->getDefaultValue();
 
-                    continue;
+                        continue;
+                    }
+
+                    throw new ($e::class)($errMsg . $e->getMessage(), $e->getCode(), $e);
                 }
-
-                throw new ($e::class)($errMsg . $e->getMessage(), $e->getCode(), $e);
             }
         }
 

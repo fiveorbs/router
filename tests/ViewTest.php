@@ -125,6 +125,50 @@ class ViewTest extends TestCase
         $this->assertEquals([$request, $route, 'conia'], $view->execute($request));
     }
 
+    public function testViewWithRouteParams(): void
+    {
+        $request = $this->request();
+        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route->match('/symbolic/7.13-23');
+        $view = new View($route, null);
+
+        $this->assertEquals(
+            [
+                'string' => 'symbolic',
+                'float' => 7.13,
+                'int' => 23,
+                'request' => $request::class,
+            ],
+            $view->execute($request)
+        );
+    }
+
+    public function testDispatchViewWithDefaultValueParams(): void
+    {
+        // Should overwrite the default value
+        $route = new Route(
+            '/{string}/{int}',
+            TestController::class . '::routeDefaultValueParams'
+        );
+        $route->match('/symbolic/17');
+        $view = new View($route, null);
+
+        $this->assertEquals([
+            'string' => 'symbolic',
+            'int' => 17,
+        ], $view->execute($this->request()));
+
+        // Should use the default value
+        $route = new Route('/{string}', TestController::class . '::routeDefaultValueParams');
+        $route->match('/symbolic');
+        $view = new View($route, null);
+
+        $this->assertEquals([
+            'string' => 'symbolic',
+            'int' => 13,
+        ], $view->execute($this->request()));
+    }
+
     public function testAttributeFilteringCallableView(): void
     {
         $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'conia');
