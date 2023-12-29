@@ -144,7 +144,7 @@ class ViewTest extends TestCase
         );
     }
 
-    public function testDispatchViewWithDefaultValueParams(): void
+    public function testViewWithDefaultValueParams(): void
     {
         // Should overwrite the default value
         $route = new Route(

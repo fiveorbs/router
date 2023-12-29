@@ -187,11 +187,7 @@ class Router implements RouteAdder
         $file = realpath($dir . $ds . ltrim(str_replace('/', $ds, $path), $ds));
 
         if ($file) {
-            try {
-                return hash('xxh32', (string)filemtime($file));
-            } catch (Throwable) {
-                return '';
-            }
+            return hash('xxh32', (string)filemtime($file)) ?? '';
         }
 
         return '';
