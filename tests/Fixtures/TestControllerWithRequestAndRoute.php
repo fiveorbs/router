@@ -16,8 +16,8 @@ class TestControllerWithRequestAndRoute
     ) {
     }
 
-    public function requestAndRoute(): array
+    public function requestAndRoute(): string
     {
-        return [$this->request, $this->route, $this->param];
+        return $this->request::class . $this->route::class . $this->param;
     }
 }

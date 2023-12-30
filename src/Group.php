@@ -20,7 +20,6 @@ class Group implements RouteAdder
     protected array $subgroups = [];
 
     protected ?RouteAdder $routeAdder = null;
-    protected ?string $renderer = null;
     protected ?string $controller = null;
     protected bool $created = false;
 
@@ -38,20 +37,9 @@ class Group implements RouteAdder
         return $this;
     }
 
-    public function render(string $renderer): static
-    {
-        $this->renderer = $renderer;
-
-        return $this;
-    }
-
     public function addRoute(Route $route): Route
     {
         $route->prefix($this->patternPrefix, $this->namePrefix);
-
-        if ($this->renderer && empty($route->renderer())) {
-            $route->render($this->renderer);
-        }
 
         if ($this->controller) {
             $route->controller($this->controller);

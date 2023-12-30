@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
+use Conia\Route\Tests\Fixtures\TestRenderer;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
@@ -48,6 +49,11 @@ class TestCase extends BaseTestCase
     public function responseFactory(): ResponseFactory
     {
         return new ResponseFactory();
+    }
+
+    public function renderer(): TestRenderer
+    {
+        return new TestRenderer($this->responseFactory());
     }
 
     public function fullTrim(string $text): string

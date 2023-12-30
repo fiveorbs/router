@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Conia\Route\Renderer\Renderer;
+use Conia\Route\After;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 
-class TestRendererArgsOptions implements Renderer
+class TestRendererArgsOptions implements After
 {
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
@@ -17,14 +17,8 @@ class TestRendererArgsOptions implements Renderer
     ) {
     }
 
-    public function render(mixed $data, mixed ...$args): string
+    public function handle(mixed $data): Response
     {
-        return print_r($this->prepareData($data, $args), return: true);
-    }
-
-    public function response(mixed $data, mixed ...$args): Response
-    {
-        $data = $this->prepareData($data, $args);
         $response = $this->responseFactory->createResponse();
 
         if (is_array($data)) {
@@ -37,18 +31,5 @@ class TestRendererArgsOptions implements Renderer
         }
 
         return $response;
-    }
-
-    private function prepareData(mixed $data, array $args): mixed
-    {
-        if (is_array($data)) {
-            $data = array_merge($data, $args);
-        }
-
-        if (is_array($data)) {
-            $data = array_merge($data, ['option1' => $this->option1, 'option2' => $this->option2]);
-        }
-
-        return $data;
     }
 }

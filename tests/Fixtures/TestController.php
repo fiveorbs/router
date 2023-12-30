@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Conia\Route\Renderer\Render;
 use Psr\Http\Message\ResponseFactoryInterface as Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class TestController
 {
-    #[TestAttribute, Render('text')]
+    #[TestAttribute]
     public function textView(): string
     {
         return 'text';
@@ -36,7 +35,7 @@ class TestController
         return $response;
     }
 
-    #[Render('text'), TestMiddleware1]
+    #[TestMiddleware1]
     public function attributedMiddlewareView(Factory $factory): Response
     {
         $response = $factory->createResponse->withHeader('Content-Type', 'text/html');
@@ -55,12 +54,12 @@ class TestController
         ];
     }
 
-    public function routeDefaultValueParams(string $string, int $int = 13): array
+    public function routeDefaultValueParams(string $string, int $int = 13): string
     {
-        return [
+        return json_encode([
             'string' => $string,
             'int' => $int,
-        ];
+        ]);
     }
 
     public function wrongReturnType(): mixed

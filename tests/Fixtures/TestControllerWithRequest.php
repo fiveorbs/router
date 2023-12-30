@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Conia\Route\Renderer\Render;
 use Psr\Http\Message\RequestInterface as Request;
 
 class TestControllerWithRequest
@@ -13,24 +12,18 @@ class TestControllerWithRequest
     {
     }
 
-    #[Render('text')]
-    public function requestOnlyRendered(): string
+    public function requestOnly(): string
     {
         return $this->request::class;
     }
 
-    public function requestOnly(): Request
+    public function routeParams(string $string, float $float, int $int): string
     {
-        return $this->request;
-    }
-
-    public function routeParams(string $string, float $float, int $int): array
-    {
-        return [
+        return json_encode([
             'string' => $string,
             'float' => $float,
             'int' => $int,
             'request' => $this->request::class,
-        ];
+        ]);
     }
 }

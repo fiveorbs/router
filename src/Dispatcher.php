@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use Conia\Route\Renderer\Renderer;
 use Conia\Route\View;
 use Conia\Route\ViewHandler;
 use Psr\Container\ContainerInterface as Container;
@@ -15,22 +14,37 @@ class Dispatcher
 {
     use AddsMiddleware;
 
-    /** @param array<string, Renderer> $renderers */
-    protected array $renderers = [];
+    /** @param list<Before> */
+    protected array $beforeHandlers = [];
 
-    public function renderer(string $key, Renderer $renderer): void
+    /** @param list<After> */
+    protected array $afterHandlers = [];
+
+    public function before(Before $before): void
     {
-        $this->renderers[$key] = $renderer;
+        $this->beforeHandlers[] = $before;
     }
 
-    public function renderers(): array
+    /** @return list<Before> */
+    public function beforeHandlers(): array
     {
-        return $this->renderers;
+        return $this->beforeHandlers;
+    }
+
+    public function after(After $after): void
+    {
+        $this->afterHandlers[] = $after;
+    }
+
+    /** @return list<After> */
+    public function afterHandlers(): array
+    {
+        return $this->afterHandlers;
     }
 
     public function dispatch(Request $request, Route $route, ?Container $container = null): Response
     {
-        $handler = new ViewHandler(new View($route, $container), $this->middleware, $this->renderers);
+        $handler = new ViewHandler(new View($route, $container), $this->middleware);
 
         return $handler->handle($request);
     }

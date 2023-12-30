@@ -12,8 +12,8 @@ class TestControllerWithRoute
     {
     }
 
-    public function routeOnly(): Route
+    public function routeOnly(): string
     {
-        return $this->route;
+        return $this->route::class;
     }
 }

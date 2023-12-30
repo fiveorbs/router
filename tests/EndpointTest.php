@@ -171,28 +171,6 @@ class EndpointTest extends TestCase
         $this->assertEquals('albums-put', $route->name());
     }
 
-    public function testEndpointDefaultRenderer(): void
-    {
-        $router = new Router();
-        (new Endpoint($router, '/endpoint', TestEndpoint::class, 'id'))->add();
-        $route = $router->match($this->request('GET', '/endpoint'));
-        $rendererConfig = $route->renderer();
-
-        $this->assertEquals('json', $rendererConfig->type);
-        $this->assertEquals([], $rendererConfig->args);
-    }
-
-    public function testEndpointSetRenderer(): void
-    {
-        $router = new Router();
-        (new Endpoint($router, '/endpoint', TestEndpoint::class, 'id'))->render('text', 1, 'test')->add();
-        $route = $router->match($this->request('GET', '/endpoint'));
-        $rendererConfig = $route->renderer();
-
-        $this->assertEquals('text', $rendererConfig->type);
-        $this->assertEquals([1, 'test'], $rendererConfig->args);
-    }
-
     public function testEndpointWithMultipleArgs(): void
     {
         $router = new Router();

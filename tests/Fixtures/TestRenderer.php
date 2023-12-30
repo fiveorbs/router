@@ -4,25 +4,20 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Conia\Route\Renderer\Renderer;
+use Conia\Route\After;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 
-class TestRenderer implements Renderer
+class TestRenderer implements After
 {
     public function __construct(protected ResponseFactoryInterface $responseFactory)
     {
     }
 
-    public function render(mixed $data, mixed ...$args): string
-    {
-        return print_r($data, return: true);
-    }
-
-    public function response(mixed $data, mixed ...$args): Response
+    public function handle(mixed $data): Response
     {
         $response = $this->responseFactory->createResponse()->withHeader('Content-Type', 'text/plain');
-        $response->getBody()->write($this->render($data));
+        $response->getBody()->write(print_r($data, return: true));
 
         return $response;
     }

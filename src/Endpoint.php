@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Conia\Route;
 
 use Conia\Route\Exception\RuntimeException;
-use Conia\Route\Renderer\Config as RendererConfig;
 
 /** @psalm-api */
 class Endpoint
@@ -13,7 +12,6 @@ class Endpoint
     use AddsMiddleware;
 
     protected string $name = '';
-    protected RendererConfig $renderer;
 
     /**
      * @psalm-param class-string $controller
@@ -27,8 +25,6 @@ class Endpoint
         if (!class_exists($controller)) {
             throw new RuntimeException("Endpoint controller {$controller} does not exist!");
         }
-
-        $this->renderer = new RendererConfig('json', []);
     }
 
     public function add(): void
@@ -59,18 +55,6 @@ class Endpoint
         return $this;
     }
 
-    public function render(string $renderer, mixed ...$args): static
-    {
-        $this->renderer = new RendererConfig($renderer, $args);
-
-        return $this;
-    }
-
-    public function renderer(): RendererConfig
-    {
-        return $this->renderer;
-    }
-
     protected function addRoutes(
         string $plural,
         string $singular,
@@ -97,7 +81,6 @@ class Endpoint
                 (new Route($path, [$this->controller, $controllerMethod], $name))
                     ->method($httpMethod)
                     ->middleware(...$this->middleware)
-                    ->render($this->renderer->type, ...$this->renderer->args)
             );
         }
     }

@@ -7,7 +7,6 @@ namespace Conia\Route;
 use Closure;
 use Conia\Route\Exception\InvalidArgumentException;
 use Conia\Route\Exception\ValueError;
-use Conia\Route\Renderer\Config as RendererConfig;
 use Stringable;
 
 const LEFT_BRACE = '§§§€§§§';
@@ -23,7 +22,12 @@ class Route
     use AddsMiddleware;
 
     protected array $args = [];
-    protected ?RendererConfig $renderer = null;
+
+    /** @psalm-var list<Before> */
+    protected array $beforeHandlers = [];
+
+    /** @psalm-var list<After> */
+    protected array $afterHandlers = [];
 
     /** @psalm-var null|list<string> */
     protected ?array $methods = null;
@@ -48,6 +52,12 @@ class Route
         } else {
             $this->view = $view;
         }
+    }
+
+    /** @psalm-param View $view */
+    public static function any(string $pattern, callable|array|string $view, string $name = ''): static
+    {
+        return (new self($pattern, $view, $name));
     }
 
     /** @psalm-param View $view */
@@ -119,16 +129,30 @@ class Route
         return $this;
     }
 
-    public function render(string $renderer, mixed ...$args): static
+    public function before(Before $beforeHandler): static
     {
-        $this->renderer = new RendererConfig($renderer, $args);
+        $this->beforeHandlers[] = $beforeHandler;
 
         return $this;
     }
 
-    public function renderer(): ?RendererConfig
+    /** @return list<Before> */
+    public function beforeHandlers(): array
     {
-        return $this->renderer;
+        return $this->beforeHandlers;
+    }
+
+    public function after(After $afterHandler): static
+    {
+        $this->afterHandlers[] = $afterHandler;
+
+        return $this;
+    }
+
+    /** @return list<After> */
+    public function afterHandlers(): array
+    {
+        return $this->afterHandlers;
     }
 
     /**

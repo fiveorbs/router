@@ -6,12 +6,12 @@ namespace Conia\Route;
 
 use Closure;
 use Conia\Route\Exception\RuntimeException;
-use Conia\Route\Renderer\Config as RendererConfig;
 use Conia\Wire\Creator;
 use Psr\Container\ContainerExceptionInterface as ContainerException;
 use Psr\Container\ContainerInterface as Container;
 use Psr\Container\NotFoundExceptionInterface as NotFoundException;
 use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
 use ReflectionClass;
 use ReflectionFunctionAbstract;
@@ -35,14 +35,28 @@ class View
         $this->view = $this->prepareView($route->view());
     }
 
-    public function execute(Request $request): mixed
+    public function execute(Request $request): Response
     {
         $closure = $this->getClosure($request);
+        $beforeHandlers = array_merge($this->route->beforeHandlers(), $this->attributes(Before::class));
 
-        return ($closure)(...$this->getArgs(
-            getReflectionFunction($closure),
-            $request,
-        ));
+        foreach ($beforeHandlers as $handler) {
+            $request = $handler->handle($request);
+        }
+
+        $result = ($closure)(...$this->getArgs(getReflectionFunction($closure), $request));
+
+        $afterHandlers = array_merge($this->route->afterHandlers(), $this->attributes(After::class));
+
+        foreach ($afterHandlers as $handler) {
+            $result = $handler->handle($result);
+        }
+
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        throw new RuntimeException('Unable to determine a response handler for the returned value of the view');
     }
 
     /** @psalm-param $filter ?class-string */
@@ -59,7 +73,6 @@ class View
                     $reflectionClass->getMethod($method),
                 ], $this->container);
             }
-
         }
 
         return $this->attributes->get($filter);
@@ -235,10 +248,5 @@ class View
             $this->route->getMiddleware(),
             $middlewareAttributes,
         );
-    }
-
-    public function renderer(): ?RendererConfig
-    {
-        return $this->route->renderer();
     }
 }

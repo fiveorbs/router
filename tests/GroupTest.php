@@ -97,31 +97,31 @@ class GroupTest extends TestCase
         $router->match($this->request('GET', '/helper/delete'));
     }
 
-    public function testRenderer(): void
-    {
-        $router = new Router();
-
-        $group = (new Group('/albums', function (Group $group) {
-            $ctrl = TestController::class;
-
-            $group->addRoute(Route::get('', "{$ctrl}::albumList"));
-
-            // overwrite group renderer
-            $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->render('template:home.php'));
-
-            $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
-        }))->render('json');
-        $group->create($router);
-
-        $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
-        $this->assertEquals('json', $route->renderer()->type);
-
-        $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
-        $this->assertEquals('template:home.php', $route->renderer()->type);
-
-        $route = $router->match($this->request(method: 'GET', uri: '/albums'));
-        $this->assertEquals('json', $route->renderer()->type);
-    }
+    // public function testRenderer(): void
+    // {
+    //     $router = new Router();
+    //
+    //     $group = (new Group('/albums', function (Group $group) {
+    //         $ctrl = TestController::class;
+    //
+    //         $group->addRoute(Route::get('', "{$ctrl}::albumList"));
+    //
+    //         // overwrite group renderer
+    //         $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->render('template:home.php'));
+    //
+    //         $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
+    //     }))->render('json');
+    //     $group->create($router);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
+    //     $this->assertEquals('json', $route->renderer()->type);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
+    //     $this->assertEquals('template:home.php', $route->renderer()->type);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums'));
+    //     $this->assertEquals('json', $route->renderer()->type);
+    // }
 
     public function testControllerPrefixing(): void
     {

@@ -15,77 +15,78 @@ use Conia\Route\Tests\Fixtures\TestControllerWithRequestAndRoute;
 use Conia\Route\Tests\Fixtures\TestControllerWithRoute;
 use Conia\Route\View;
 use GdImage;
+use PHPUnit\Framework\Attributes\Group;
 
 class ViewTest extends TestCase
 {
     public function testAttribute(): void
     {
-        $route = new Route('/', #[TestAttribute] fn () => 'conia');
+        $route = Route::any('/', #[TestAttribute] fn () => 'conia')->after($this->renderer());
         $view = new View($route, null);
 
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
-    #
+    #[Group('only')]
     public function testClosure(): void
     {
-        $route = new Route('/', fn () => 'conia');
+        $route = Route::any('/', fn () => 'conia')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('conia', $view->execute($this->request()));
+        $this->assertEquals('conia', (string)$view->execute($this->request())->getBody());
     }
 
     public function testFunction(): void
     {
-        $route = new Route('/{name}', 'testViewWithAttribute');
+        $route = Route::any('/{name}', 'testViewWithAttribute')->after($this->renderer());
         $route->match('/symbolic');
         $view = new View($route, null);
 
-        $this->assertEquals('symbolic', $view->execute($this->request()));
+        $this->assertEquals('symbolic', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerString(): void
     {
-        $route = new Route('/', '\Conia\Route\Tests\Fixtures\TestController::textView');
+        $route = Route::any('/', '\Conia\Route\Tests\Fixtures\TestController::textView')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', $view->execute($this->request()));
+        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerClassMethod(): void
     {
-        $route = new Route('/', [TestController::class, 'textView']);
+        $route = Route::any('/', [TestController::class, 'textView'])->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', $view->execute($this->request()));
+        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testControllerObjectMethod(): void
     {
         $controller = new TestController();
-        $route = new Route('/', [$controller, 'textView']);
+        $route = Route::any('/', [$controller, 'textView'])->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', $view->execute($this->request()));
+        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
     public function testInvokableClass(): void
     {
-        $route = new Route('/', 'Conia\Route\Tests\Fixtures\TestInvokableClass');
+        $route = Route::any('/', 'Conia\Route\Tests\Fixtures\TestInvokableClass')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('Invokable', $view->execute($this->request()));
+        $this->assertEquals('Invokable', (string)$view->execute($this->request())->getBody());
     }
 
     public function testNonexistentControllerView(): void
     {
         $this->throws(RuntimeException::class, 'View method not found');
 
-        $route = new Route('/', TestController::class . '::nonexistentView');
+        $route = Route::any('/', TestController::class . '::nonexistentView')->after($this->renderer());
         $view = new View($route, null);
         $view->execute($this->request());
     }
@@ -94,7 +95,7 @@ class ViewTest extends TestCase
     {
         $this->throws(RuntimeException::class, 'Controller not found');
 
-        $route = new Route('/', NonexisitentTestController::class . '::nonexistentView');
+        $route = Route::any('/', NonexisitentTestController::class . '::nonexistentView')->after($this->renderer());
         $view = new View($route, null);
         $view->execute($this->request());
     }
@@ -102,79 +103,80 @@ class ViewTest extends TestCase
     public function testControllerWithRequestInConstructor(): void
     {
         $request = $this->request();
-        $route = new Route('/', TestControllerWithRequest::class . '::requestOnly');
+        $route = Route::any('/', TestControllerWithRequest::class . '::requestOnly')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals($request, $view->execute($request));
+        $this->assertEquals($request::class, (string)$view->execute($request)->getBody());
     }
 
     public function testControllerWithRouteInConstructor(): void
     {
-        $route = new Route('/', TestControllerWithRoute::class . '::routeOnly');
+        $route = Route::any('/', TestControllerWithRoute::class . '::routeOnly')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals($route, $view->execute($this->request()));
+        $this->assertEquals($route::class, (string)$view->execute($this->request())->getBody());
     }
 
     public function testControllerWithRequestRouteAndParamInConstructor(): void
     {
         $request = $this->request();
-        $route = new Route('/{param}', TestControllerWithRequestAndRoute::class . '::requestAndRoute');
+        $route = Route::any(
+            '/{param}',
+            TestControllerWithRequestAndRoute::class . '::requestAndRoute'
+        )->after($this->renderer());
         $route->match('/conia');
         $view = new View($route, null);
 
-        $this->assertEquals([$request, $route, 'conia'], $view->execute($request));
+        $this->assertEquals(
+            $request::class . $route::class . 'conia',
+            (string)$view->execute($request)->getBody()
+        );
     }
 
     public function testViewWithRouteParams(): void
     {
         $request = $this->request();
-        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route = Route::any(
+            '/{string}/{float}-{int}',
+            TestControllerWithRequest::class . '::routeParams'
+        )->after($this->renderer());
         $route->match('/symbolic/7.13-23');
         $view = new View($route, null);
 
         $this->assertEquals(
-            [
-                'string' => 'symbolic',
-                'float' => 7.13,
-                'int' => 23,
-                'request' => $request::class,
-            ],
-            $view->execute($request)
+            '{"string":"symbolic","float":7.13,"int":23,"request":"Laminas\\\\Diactoros\\\\ServerRequest"}',
+            (string)$view->execute($request)->getBody()
         );
     }
 
     public function testViewWithDefaultValueParams(): void
     {
         // Should overwrite the default value
-        $route = new Route(
+        $route = Route::any(
             '/{string}/{int}',
             TestController::class . '::routeDefaultValueParams'
-        );
+        )->after($this->renderer());
         $route->match('/symbolic/17');
         $view = new View($route, null);
 
-        $this->assertEquals([
-            'string' => 'symbolic',
-            'int' => 17,
-        ], $view->execute($this->request()));
+        $this->assertEquals('{"string":"symbolic","int":17}', (string)$view->execute($this->request())->getBody());
 
         // Should use the default value
-        $route = new Route('/{string}', TestController::class . '::routeDefaultValueParams');
+        $route = Route::any('/{string}', TestController::class . '::routeDefaultValueParams')->after($this->renderer());
         $route->match('/symbolic');
         $view = new View($route, null);
 
-        $this->assertEquals([
-            'string' => 'symbolic',
-            'int' => 13,
-        ], $view->execute($this->request()));
+        $this->assertEquals('{"string":"symbolic","int":13}', (string)$view->execute($this->request())->getBody());
     }
 
     public function testViewWithWrongRouteParams(): void
     {
         $this->throws(RuntimeException::class, 'cannot be resolved');
 
-        $route = new Route('/{wrong}/{param}', TestControllerWithRequest::class . '::routeParams');
+        $route = Route::any(
+            '/{wrong}/{param}',
+            TestControllerWithRequest::class . '::routeParams'
+        )->after($this->renderer());
         $route->match('/symbolic/test');
         $view = new View($route, null);
         $view->execute($this->request());
@@ -184,7 +186,10 @@ class ViewTest extends TestCase
     {
         $this->throws(RuntimeException::class, "Cannot cast 'int' to int");
 
-        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route = Route::any(
+            '/{string}/{float}-{int}',
+            TestControllerWithRequest::class . '::routeParams'
+        )->after($this->renderer());
         $route->match('/symbolic/7.13-wrong');
         $view = new View($route, null);
         $view->execute($this->request());
@@ -194,7 +199,10 @@ class ViewTest extends TestCase
     {
         $this->throws(RuntimeException::class, "Cannot cast 'float' to float");
 
-        $route = new Route('/{string}/{float}-{int}', TestControllerWithRequest::class . '::routeParams');
+        $route = Route::any(
+            '/{string}/{float}-{int}',
+            TestControllerWithRequest::class . '::routeParams'
+        )->after($this->renderer());
         $route->match('/symbolic/wrong-13');
         $view = new View($route, null);
         $view->execute($this->request());
@@ -204,7 +212,7 @@ class ViewTest extends TestCase
     {
         $this->throws(RuntimeException::class, 'Unresolvable: GdImage');
 
-        $route = new Route('/{name}', fn (GdImage $name) => $name);
+        $route = Route::any('/{name}', fn (GdImage $name) => $name)->after($this->renderer());
         $route->match('/symbolic');
         $view = new View($route, null);
         $view->execute($this->request());
@@ -212,7 +220,11 @@ class ViewTest extends TestCase
 
     public function testAttributeFilteringCallableView(): void
     {
-        $route = new Route('/', #[TestAttribute, TestAttributeExt, TestAttributeDiff] fn () => 'conia');
+        $route = Route::any(
+            '/',
+            #[TestAttribute, TestAttributeExt, TestAttributeDiff]
+            fn () => 'conia'
+        )->after($this->renderer());
         $view = new View($route, null);
 
         $this->assertEquals(3, count($view->attributes()));

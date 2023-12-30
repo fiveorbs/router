@@ -45,11 +45,11 @@ class DispatcherTest extends TestCase
     {
         $dispatcher = new Dispatcher();
 
-        $dispatcher->renderer('renderer1', new TestRenderer($this->responseFactory()));
-        $dispatcher->renderer('renderer2', new TestRendererArgsOptions($this->responseFactory(), 13, 'Option'));
+        $dispatcher->after(new TestRenderer($this->responseFactory()));
+        $dispatcher->after(new TestRendererArgsOptions($this->responseFactory(), 13, 'Option'));
 
-        $this->assertEquals(2, count($dispatcher->renderers()));
-        $this->assertInstanceof(TestRenderer::class, $dispatcher->renderers()['renderer1']);
-        $this->assertInstanceof(TestRendererArgsOptions::class, $dispatcher->renderers()['renderer2']);
+        $this->assertEquals(2, count($dispatcher->afterHandlers()));
+        $this->assertInstanceof(TestRenderer::class, $dispatcher->afterHandlers()[0]);
+        $this->assertInstanceof(TestRendererArgsOptions::class, $dispatcher->afterHandlers()[1]);
     }
 }
