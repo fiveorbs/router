@@ -9,4 +9,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 interface After
 {
     public function handle(mixed $request): Response;
+
+    public function replace(): bool;
 }

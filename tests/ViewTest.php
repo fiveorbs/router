@@ -27,7 +27,6 @@ class ViewTest extends TestCase
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
-    #[Group('only')]
     public function testClosure(): void
     {
         $route = Route::any('/', fn () => 'conia')->after($this->renderer());
@@ -149,6 +148,7 @@ class ViewTest extends TestCase
         );
     }
 
+    #[Group('only')]
     public function testViewWithDefaultValueParams(): void
     {
         // Should overwrite the default value

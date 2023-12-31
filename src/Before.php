@@ -9,4 +9,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 interface Before
 {
     public function handle(Request $request): Request;
+
+    public function replace(): bool;
 }

@@ -20,4 +20,9 @@ class TestAfterAddText implements After
 
         return $data;
     }
+
+    public function replace(): bool
+    {
+        return false;
+    }
 }

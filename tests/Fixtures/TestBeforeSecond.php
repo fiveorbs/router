@@ -15,4 +15,9 @@ class TestBeforeSecond implements Before
             ->withAttribute('first', $request->getAttribute('first', '') . '-added-second-value')
             ->withAttribute('second', 'second-value');
     }
+
+    public function replace(): bool
+    {
+        return false;
+    }
 }

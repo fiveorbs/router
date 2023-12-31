@@ -21,4 +21,9 @@ class TestAfterRenderer implements After
 
         return $response;
     }
+
+    public function replace(): bool
+    {
+        return true;
+    }
 }

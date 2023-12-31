@@ -17,7 +17,11 @@ class Dispatcher
 
     public function dispatch(Request $request, Route $route, ?Container $container = null): Response
     {
-        $handler = new ViewHandler(new View($route, $container), $this->middleware);
+        $view = new View($route, $container);
+        $view->setBeforeHandlers($this->beforeHandlers);
+        $view->setAfterHandlers($this->afterHandlers);
+
+        $handler = new ViewHandler($view, $this->middleware);
 
         return $handler->handle($request);
     }

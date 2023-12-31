@@ -22,6 +22,8 @@ use Throwable;
 
 class View
 {
+    use AddsBeforeAfter;
+
     protected Creator $creator;
     protected ?AttributesResolver $attributes = null;
     protected ?Closure $closure = null;
@@ -33,22 +35,21 @@ class View
     ) {
         $this->creator = new Creator($container);
         $this->view = $this->prepareView($route->view());
+        $this->setBeforeHandlers($this->mergeBeforeHandlers($this->route->beforeHandlers()));
+        $this->setAfterHandlers($this->mergeAfterHandlers($this->route->afterHandlers()));
     }
 
     public function execute(Request $request): Response
     {
         $closure = $this->getClosure($request);
-        $beforeHandlers = array_merge($this->route->beforeHandlers(), $this->attributes(Before::class));
 
-        foreach ($beforeHandlers as $handler) {
+        foreach ($this->mergeBeforeHandlers($this->attributes(Before::class)) as $handler) {
             $request = $handler->handle($request);
         }
 
         $result = ($closure)(...$this->getArgs(getReflectionFunction($closure), $request));
 
-        $afterHandlers = array_merge($this->route->afterHandlers(), $this->attributes(After::class));
-
-        foreach ($afterHandlers as $handler) {
+        foreach ($this->mergeAfterHandlers($this->attributes(After::class)) as $handler) {
             $result = $handler->handle($result);
         }
 
