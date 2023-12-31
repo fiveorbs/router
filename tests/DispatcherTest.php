@@ -8,6 +8,8 @@ use Conia\Route\Dispatcher;
 use Conia\Route\Route;
 use Conia\Route\Tests\Fixtures\TestAfterAddText;
 use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestBeforeFirst;
+use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
 use Conia\Route\Tests\Fixtures\TestMiddleware2;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -41,15 +43,25 @@ class DispatcherTest extends TestCase
         $this->assertEquals(2, count($dispatcher->getMiddleware()));
     }
 
-    public function testAddRenderers(): void
+    public function testRouteBeforeHandlers(): void
     {
         $dispatcher = new Dispatcher();
+        $dispatcher->before(new TestBeforeFirst())->before(new TestBeforeSecond());
+        $handlers = $dispatcher->beforeHandlers();
 
-        $dispatcher->after(new TestAfterRenderer($this->responseFactory()));
-        $dispatcher->after(new TestAfterAddText());
+        $this->assertEquals(2, count($handlers));
+        $this->assertInstanceof(TestBeforeFirst::class, $handlers[0]);
+        $this->assertInstanceof(TestBeforeSecond::class, $handlers[1]);
+    }
 
-        $this->assertEquals(2, count($dispatcher->afterHandlers()));
-        $this->assertInstanceof(TestAfterRenderer::class, $dispatcher->afterHandlers()[0]);
-        $this->assertInstanceof(TestAfterAddText::class, $dispatcher->afterHandlers()[1]);
+    public function testRouteAfterHandlers(): void
+    {
+        $dispatcher = new Dispatcher();
+        $dispatcher->after(new TestAfterRenderer($this->responseFactory()))->after(new TestAfterAddText());
+        $handlers = $dispatcher->afterHandlers();
+
+        $this->assertEquals(2, count($handlers));
+        $this->assertInstanceof(TestAfterRenderer::class, $handlers[0]);
+        $this->assertInstanceof(TestAfterAddText::class, $handlers[1]);
     }
 }

@@ -7,6 +7,10 @@ namespace Conia\Route\Tests;
 use Conia\Route\Exception\InvalidArgumentException;
 use Conia\Route\Exception\ValueError;
 use Conia\Route\Route;
+use Conia\Route\Tests\Fixtures\TestAfterAddText;
+use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestBeforeFirst;
+use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
 use Conia\Route\Tests\Fixtures\TestMiddleware2;
 use stdClass;
@@ -213,5 +217,25 @@ class RouteTest extends TestCase
 
         $this->assertInstanceof(TestMiddleware1::class, $middleware[0]);
         $this->assertInstanceof(TestMiddleware2::class, $middleware[1]);
+    }
+
+    public function testRouteBeforeHandlers(): void
+    {
+        $route = Route::get('/', fn () => 'chuck');
+        $route->before(new TestBeforeFirst())->before(new TestBeforeSecond());
+        $handlers = $route->beforeHandlers();
+
+        $this->assertInstanceof(TestBeforeFirst::class, $handlers[0]);
+        $this->assertInstanceof(TestBeforeSecond::class, $handlers[1]);
+    }
+
+    public function testRouteAfterHandlers(): void
+    {
+        $route = Route::get('/', fn () => 'chuck');
+        $route->after(new TestAfterRenderer($this->responseFactory()))->after(new TestAfterAddText());
+        $handlers = $route->afterHandlers();
+
+        $this->assertInstanceof(TestAfterRenderer::class, $handlers[0]);
+        $this->assertInstanceof(TestAfterAddText::class, $handlers[1]);
     }
 }

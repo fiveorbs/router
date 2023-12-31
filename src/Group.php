@@ -13,8 +13,9 @@ use Conia\Route\RouteAdder;
 /** @psalm-api */
 class Group implements RouteAdder
 {
-    use AddsRoutes;
+    use AddsBeforeAfter;
     use AddsMiddleware;
+    use AddsRoutes;
 
     /** @psalm-var list<Group> */
     protected array $subgroups = [];
@@ -45,9 +46,9 @@ class Group implements RouteAdder
             $route->controller($this->controller);
         }
 
-        if (!empty($this->middleware)) {
-            $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
-        }
+        $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
+        $route->replaceBeforeHandlers(array_merge($this->beforeHandlers, $route->beforeHandlers()));
+        $route->replaceAfterHandlers(array_merge($this->afterHandlers, $route->afterHandlers()));
 
         if ($this->routeAdder) {
             $this->routeAdder->addRoute($route);

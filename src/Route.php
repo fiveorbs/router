@@ -19,15 +19,10 @@ const RIGHT_BRACE = '§§§£§§§';
  */
 class Route
 {
+    use AddsBeforeAfter;
     use AddsMiddleware;
 
     protected array $args = [];
-
-    /** @psalm-var list<Before> */
-    protected array $beforeHandlers = [];
-
-    /** @psalm-var list<After> */
-    protected array $afterHandlers = [];
 
     /** @psalm-var null|list<string> */
     protected ?array $methods = null;
@@ -127,32 +122,6 @@ class Route
         }
 
         return $this;
-    }
-
-    public function before(Before $beforeHandler): static
-    {
-        $this->beforeHandlers[] = $beforeHandler;
-
-        return $this;
-    }
-
-    /** @return list<Before> */
-    public function beforeHandlers(): array
-    {
-        return $this->beforeHandlers;
-    }
-
-    public function after(After $afterHandler): static
-    {
-        $this->afterHandlers[] = $afterHandler;
-
-        return $this;
-    }
-
-    /** @return list<After> */
-    public function afterHandlers(): array
-    {
-        return $this->afterHandlers;
     }
 
     /**

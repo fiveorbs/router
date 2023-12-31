@@ -10,6 +10,10 @@ use Conia\Route\Exception\ValueError;
 use Conia\Route\Group;
 use Conia\Route\Route;
 use Conia\Route\Router;
+use Conia\Route\Tests\Fixtures\TestAfterAddText;
+use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestBeforeFirst;
+use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestController;
 use Conia\Route\Tests\Fixtures\TestEndpoint;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
@@ -96,32 +100,6 @@ class GroupTest extends TestCase
         // raises not allowed
         $router->match($this->request('GET', '/helper/delete'));
     }
-
-    // public function testRenderer(): void
-    // {
-    //     $router = new Router();
-    //
-    //     $group = (new Group('/albums', function (Group $group) {
-    //         $ctrl = TestController::class;
-    //
-    //         $group->addRoute(Route::get('', "{$ctrl}::albumList"));
-    //
-    //         // overwrite group renderer
-    //         $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->render('template:home.php'));
-    //
-    //         $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
-    //     }))->render('json');
-    //     $group->create($router);
-    //
-    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
-    //     $this->assertEquals('json', $route->renderer()->type);
-    //
-    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
-    //     $this->assertEquals('template:home.php', $route->renderer()->type);
-    //
-    //     $route = $router->match($this->request(method: 'GET', uri: '/albums'));
-    //     $this->assertEquals('json', $route->renderer()->type);
-    // }
 
     public function testControllerPrefixing(): void
     {
@@ -247,4 +225,30 @@ class GroupTest extends TestCase
         }, 'test:');
         $group->addRoute(Route::get('/', fn () => ''));
     }
+    //
+    // public function testRenderer(): void
+    // {
+    //     $router = new Router();
+    //
+    //     $group = (new Group('/albums', function (Group $group) {
+    //         $ctrl = TestController::class;
+    //
+    //         $group->addRoute(Route::get('', "{$ctrl}::albumList"));
+    //
+    //         // overwrite group renderer
+    //         $group->addRoute(Route::get('/home', "{$ctrl}::albumHome")->render('template:home.php'));
+    //
+    //         $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
+    //     }))->render('json');
+    //     $group->create($router);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
+    //     $this->assertEquals('json', $route->renderer()->type);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
+    //     $this->assertEquals('template:home.php', $route->renderer()->type);
+    //
+    //     $route = $router->match($this->request(method: 'GET', uri: '/albums'));
+    //     $this->assertEquals('json', $route->renderer()->type);
+    // }
 }
