@@ -8,7 +8,7 @@ use Conia\Route\After;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 
-class TestRenderer implements After
+class TestAfterRenderer implements After
 {
     public function __construct(protected ResponseFactoryInterface $responseFactory)
     {

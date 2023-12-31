@@ -6,10 +6,10 @@ namespace Conia\Route\Tests;
 
 use Conia\Route\Dispatcher;
 use Conia\Route\Route;
+use Conia\Route\Tests\Fixtures\TestAfterAddText;
+use Conia\Route\Tests\Fixtures\TestAfterRenderer;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
 use Conia\Route\Tests\Fixtures\TestMiddleware2;
-use Conia\Route\Tests\Fixtures\TestRenderer;
-use Conia\Route\Tests\Fixtures\TestRendererArgsOptions;
 use Psr\Http\Message\ResponseInterface as Response;
 
 class DispatcherTest extends TestCase
@@ -45,11 +45,11 @@ class DispatcherTest extends TestCase
     {
         $dispatcher = new Dispatcher();
 
-        $dispatcher->after(new TestRenderer($this->responseFactory()));
-        $dispatcher->after(new TestRendererArgsOptions($this->responseFactory(), 13, 'Option'));
+        $dispatcher->after(new TestAfterRenderer($this->responseFactory()));
+        $dispatcher->after(new TestAfterAddText());
 
         $this->assertEquals(2, count($dispatcher->afterHandlers()));
-        $this->assertInstanceof(TestRenderer::class, $dispatcher->afterHandlers()[0]);
-        $this->assertInstanceof(TestRendererArgsOptions::class, $dispatcher->afterHandlers()[1]);
+        $this->assertInstanceof(TestAfterRenderer::class, $dispatcher->afterHandlers()[0]);
+        $this->assertInstanceof(TestAfterAddText::class, $dispatcher->afterHandlers()[1]);
     }
 }
