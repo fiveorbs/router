@@ -10,5 +10,5 @@ interface Before
 {
     public function handle(Request $request): Request;
 
-    public function replace(): bool;
+    public function replace(Before $handler): bool;
 }

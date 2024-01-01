@@ -22,8 +22,8 @@ class TestAfterRenderer implements After
         return $response;
     }
 
-    public function replace(): bool
+    public function replace(After $handler): bool
     {
-        return true;
+        return $handler instanceof self;
     }
 }

@@ -21,7 +21,7 @@ class TestAfterAddText implements After
         return $data;
     }
 
-    public function replace(): bool
+    public function replace(After $handler): bool
     {
         return false;
     }

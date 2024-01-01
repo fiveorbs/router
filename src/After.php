@@ -10,5 +10,5 @@ interface After
 {
     public function handle(mixed $request): Response;
 
-    public function replace(): bool;
+    public function replace(After $handler): bool;
 }

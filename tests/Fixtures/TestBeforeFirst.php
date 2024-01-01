@@ -14,7 +14,7 @@ class TestBeforeFirst implements Before
         return $request->withAttribute('first', 'first-value');
     }
 
-    public function replace(): bool
+    public function replace(Before $handler): bool
     {
         return false;
     }

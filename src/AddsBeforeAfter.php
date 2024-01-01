@@ -81,25 +81,18 @@ trait AddsBeforeAfter
     protected function mergeHandlers(array $existingHandlers, array $newHandlers): array
     {
         foreach ($newHandlers as $handler) {
-            error_log($handler::class);
+            $replaced = false;
+            $existingHandlers = array_map(function ($h) use ($handler, &$replaced) {
+                if (!$replaced && $h->replace($handler)) {
+                    $replaced = true;
 
-            if ($handler->replace()) {
-                $replaced = false;
-                $existingHandlers = array_map(function ($h) use ($handler, &$replaced) {
-                    if (is_a($h, $handler::class)) {
-                        $replaced = true;
-
-                        return $handler;
-                    }
-
-                    return $h;
-                }, $existingHandlers);
-
-                if (!$replaced) {
-                    $existingHandlers[] = $handler;
+                    return $handler;
                 }
 
-            } else {
+                return $h;
+            }, $existingHandlers);
+
+            if (!$replaced) {
                 $existingHandlers[] = $handler;
             }
         }

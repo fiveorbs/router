@@ -16,7 +16,7 @@ class TestBeforeSecond implements Before
             ->withAttribute('second', 'second-value');
     }
 
-    public function replace(): bool
+    public function replace(Before $handler): bool
     {
         return false;
     }
