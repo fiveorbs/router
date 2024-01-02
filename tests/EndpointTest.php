@@ -16,59 +16,59 @@ class EndpointTest extends TestCase
         (new Endpoint($router, '/endpoints', TestEndpoint::class, 'id'))->add();
 
         $route = $router->match($this->request('DELETE', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'deleteList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'deleteList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('DELETE', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'delete'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'delete'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('GET', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'list'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'list'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('GET', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'get'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('HEAD', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'headList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'headList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('HEAD', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'head'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'head'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('OPTIONS', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'optionsList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'optionsList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('OPTIONS', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'options'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'options'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('PATCH', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'patch'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'patch'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'post'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'post'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('PUT', '/endpoints/13'));
-        $this->assertEquals('/endpoints/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'put'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoints/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'put'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
     }
 
     public function testEndpointWithPluralSingular(): void
@@ -77,59 +77,59 @@ class EndpointTest extends TestCase
         (new Endpoint($router, ['/endpoints', '/endpoint'], TestEndpoint::class, 'id'))->add();
 
         $route = $router->match($this->request('DELETE', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'deleteList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'deleteList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('DELETE', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'delete'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'delete'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('GET', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'list'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'list'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('GET', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'get'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('HEAD', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'headList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'headList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('HEAD', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'head'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'head'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('OPTIONS', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'optionsList'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'optionsList'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('OPTIONS', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'options'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'options'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('PATCH', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'patch'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'patch'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
 
         $route = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'post'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'post'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('PUT', '/endpoint/13'));
-        $this->assertEquals('/endpoint/{id}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'put'], $route->view());
-        $this->assertEquals(['id' => '13'], $route->args());
+        $this->assertSame('/endpoint/{id}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'put'], $route->view());
+        $this->assertSame(['id' => '13'], $route->args());
     }
 
     public function testEndpointWithName(): void
@@ -138,37 +138,37 @@ class EndpointTest extends TestCase
         (new Endpoint($router, '/endpoints', TestEndpoint::class, 'id'))->name('albums')->add();
 
         $route = $router->match($this->request('DELETE', '/endpoints'));
-        $this->assertEquals('albums-deleteList', $route->name());
+        $this->assertSame('albums-deleteList', $route->name());
 
         $route = $router->match($this->request('DELETE', '/endpoints/13'));
-        $this->assertEquals('albums-delete', $route->name());
+        $this->assertSame('albums-delete', $route->name());
 
         $route = $router->match($this->request('GET', '/endpoints'));
-        $this->assertEquals('albums-list', $route->name());
+        $this->assertSame('albums-list', $route->name());
 
         $route = $router->match($this->request('GET', '/endpoints/13'));
-        $this->assertEquals('albums-get', $route->name());
+        $this->assertSame('albums-get', $route->name());
 
         $route = $router->match($this->request('HEAD', '/endpoints'));
-        $this->assertEquals('albums-headList', $route->name());
+        $this->assertSame('albums-headList', $route->name());
 
         $route = $router->match($this->request('HEAD', '/endpoints/13'));
-        $this->assertEquals('albums-head', $route->name());
+        $this->assertSame('albums-head', $route->name());
 
         $route = $router->match($this->request('OPTIONS', '/endpoints'));
-        $this->assertEquals('albums-optionsList', $route->name());
+        $this->assertSame('albums-optionsList', $route->name());
 
         $route = $router->match($this->request('OPTIONS', '/endpoints/13'));
-        $this->assertEquals('albums-options', $route->name());
+        $this->assertSame('albums-options', $route->name());
 
         $route = $router->match($this->request('PATCH', '/endpoints/13'));
-        $this->assertEquals('albums-patch', $route->name());
+        $this->assertSame('albums-patch', $route->name());
 
         $route = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('albums-post', $route->name());
+        $this->assertSame('albums-post', $route->name());
 
         $route = $router->match($this->request('PUT', '/endpoints/13'));
-        $this->assertEquals('albums-put', $route->name());
+        $this->assertSame('albums-put', $route->name());
     }
 
     public function testEndpointWithMultipleArgs(): void
@@ -177,13 +177,13 @@ class EndpointTest extends TestCase
         (new Endpoint($router, '/endpoints', TestEndpoint::class, ['id', 'category']))->add();
 
         $route = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('/endpoints', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'post'], $route->view());
-        $this->assertEquals([], $route->args());
+        $this->assertSame('/endpoints', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'post'], $route->view());
+        $this->assertSame([], $route->args());
 
         $route = $router->match($this->request('PUT', '/endpoints/13/albums'));
-        $this->assertEquals('/endpoints/{id}/{category}', $route->pattern());
-        $this->assertEquals([TestEndpoint::class, 'put'], $route->view());
-        $this->assertEquals(['id' => '13', 'category' => 'albums'], $route->args());
+        $this->assertSame('/endpoints/{id}/{category}', $route->pattern());
+        $this->assertSame([TestEndpoint::class, 'put'], $route->view());
+        $this->assertSame(['id' => '13', 'category' => 'albums'], $route->args());
     }
 }

@@ -28,12 +28,12 @@ class RouterTest extends TestCase
             $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
         }));
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
+        $this->assertSame('index', $router->match($this->request('GET', ''))->name());
 
-        $this->assertEquals($index, $router->match($this->request('GET', '')));
-        $this->assertEquals($albums, $router->match($this->request('GET', '/albums')));
-        $this->assertEquals($albums, $router->match($this->request('GET', '/albums?q=Symbolic')));
-        $this->assertEquals('', $router->match($this->request('GET', '/albums/name'))->name());
+        $this->assertSame($index, $router->match($this->request('GET', '')));
+        $this->assertSame($albums, $router->match($this->request('GET', '/albums')));
+        $this->assertSame($albums, $router->match($this->request('GET', '/albums?q=Symbolic')));
+        $this->assertSame('', $router->match($this->request('GET', '/albums/name'))->name());
     }
 
     public function testThrowingNotFoundException(): void
@@ -50,10 +50,10 @@ class RouterTest extends TestCase
         $route = new Route('/album name/...slug', fn () => null, 'encoded');
         $router->addRoute($route);
 
-        $this->assertEquals('encoded', $router->match(
+        $this->assertSame('encoded', $router->match(
             $this->request('GET', '/album%20name/scream%20bloody%20gore')
         )->name());
-        $this->assertEquals('scream bloody gore', $route->args()['slug']);
+        $this->assertSame('scream bloody gore', $route->args()['slug']);
     }
 
     public function testMatchingWithHelpers(): void
@@ -64,10 +64,10 @@ class RouterTest extends TestCase
         $index = $router->get('/', fn () => null, 'index');
         $albums = $router->post('/albums', fn () => null);
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
-        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->name());
-        $this->assertEquals($index, $router->match($this->request('GET', '')));
-        $this->assertEquals($albums, $router->match($this->request('POST', '/albums')));
+        $this->assertSame('index', $router->match($this->request('GET', ''))->name());
+        $this->assertSame('', $router->match($this->request('POST', '/albums'))->name());
+        $this->assertSame($index, $router->match($this->request('GET', '')));
+        $this->assertSame($albums, $router->match($this->request('POST', '/albums')));
 
         $router->match($this->request('GET', '/albums'));
     }
@@ -78,8 +78,8 @@ class RouterTest extends TestCase
         $albums = new Route('albums/{from}/{to}', fn () => null, 'albums');
         $router->addRoute($albums);
 
-        $this->assertEquals('/albums/1990/1995', $router->routeUrl('albums', from: 1990, to: 1995));
-        $this->assertEquals('/albums/1988/1991', $router->routeUrl('albums', ['from' => 1988, 'to' => 1991]));
+        $this->assertSame('/albums/1990/1995', $router->routeUrl('albums', from: 1990, to: 1995));
+        $this->assertSame('/albums/1988/1991', $router->routeUrl('albums', ['from' => 1988, 'to' => 1991]));
     }
 
     public function testFailToGenerateRouteUrl(): void
@@ -97,7 +97,7 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/')));
+        $this->assertSame($route, $router->match($this->request('GET', '/')));
     }
 
     #[TestDox("HEAD matching")]
@@ -107,7 +107,7 @@ class RouterTest extends TestCase
         $route = Route::head('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
+        $this->assertSame($route, $router->match($this->request('HEAD', '/')));
     }
 
     #[TestDox("PUT matching")]
@@ -117,7 +117,7 @@ class RouterTest extends TestCase
         $route = Route::put('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
+        $this->assertSame($route, $router->match($this->request('PUT', '/')));
     }
 
     #[TestDox("POST matching")]
@@ -127,7 +127,7 @@ class RouterTest extends TestCase
         $route = Route::post('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('POST', '/')));
+        $this->assertSame($route, $router->match($this->request('POST', '/')));
     }
 
     #[TestDox("PATCH matching")]
@@ -137,7 +137,7 @@ class RouterTest extends TestCase
         $route = Route::patch('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('PATCH', '/')));
+        $this->assertSame($route, $router->match($this->request('PATCH', '/')));
     }
 
     #[TestDox("DELETE matching")]
@@ -147,7 +147,7 @@ class RouterTest extends TestCase
         $route = Route::delete('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('DELETE', '/')));
+        $this->assertSame($route, $router->match($this->request('DELETE', '/')));
     }
 
     #[TestDox("OPTIONS matching")]
@@ -157,7 +157,7 @@ class RouterTest extends TestCase
         $route = Route::options('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/')));
+        $this->assertSame($route, $router->match($this->request('OPTIONS', '/')));
     }
 
     public function testMatchingWrongMethod(): void
@@ -168,7 +168,7 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('POST', '/')));
+        $this->assertSame($route, $router->match($this->request('POST', '/')));
     }
 
     #[TestDox("Multiple methods matching I")]
@@ -180,8 +180,8 @@ class RouterTest extends TestCase
         $route = Route::get('/', fn () => null)->method('post');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/')));
-        $this->assertEquals($route, $router->match($this->request('POST', '/')));
+        $this->assertSame($route, $router->match($this->request('GET', '/')));
+        $this->assertSame($route, $router->match($this->request('POST', '/')));
         $router->match($this->request('PUT', '/'));
     }
 
@@ -194,8 +194,8 @@ class RouterTest extends TestCase
         $route = (new Route('/', fn () => null))->method('gEt', 'Put');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/')));
-        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
+        $this->assertSame($route, $router->match($this->request('GET', '/')));
+        $this->assertSame($route, $router->match($this->request('PUT', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -208,8 +208,8 @@ class RouterTest extends TestCase
         $route = (new Route('/', fn () => null))->method('get')->method('head');
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/')));
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
+        $this->assertSame($route, $router->match($this->request('GET', '/')));
+        $this->assertSame($route, $router->match($this->request('HEAD', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -219,13 +219,13 @@ class RouterTest extends TestCase
         $route = new Route('/', fn () => null);
         $router->addRoute($route);
 
-        $this->assertEquals($route, $router->match($this->request('GET', '/')));
-        $this->assertEquals($route, $router->match($this->request('HEAD', '/')));
-        $this->assertEquals($route, $router->match($this->request('POST', '/')));
-        $this->assertEquals($route, $router->match($this->request('PUT', '/')));
-        $this->assertEquals($route, $router->match($this->request('PATCH', '/')));
-        $this->assertEquals($route, $router->match($this->request('DELETE', '/')));
-        $this->assertEquals($route, $router->match($this->request('OPTIONS', '/')));
+        $this->assertSame($route, $router->match($this->request('GET', '/')));
+        $this->assertSame($route, $router->match($this->request('HEAD', '/')));
+        $this->assertSame($route, $router->match($this->request('POST', '/')));
+        $this->assertSame($route, $router->match($this->request('PUT', '/')));
+        $this->assertSame($route, $router->match($this->request('PATCH', '/')));
+        $this->assertSame($route, $router->match($this->request('DELETE', '/')));
+        $this->assertSame($route, $router->match($this->request('OPTIONS', '/')));
     }
 
     public function testSamePatternMultipleMethods(): void
@@ -238,9 +238,9 @@ class RouterTest extends TestCase
         $get = (new Route('/', fn () => null, 'get'))->method('GET');
         $router->addRoute($get);
 
-        $this->assertEquals($get, $router->match($this->request('GET', '/')));
-        $this->assertEquals($puthead, $router->match($this->request('PUT', '/')));
-        $this->assertEquals($puthead, $router->match($this->request('HEAD', '/')));
+        $this->assertSame($get, $router->match($this->request('GET', '/')));
+        $this->assertSame($puthead, $router->match($this->request('PUT', '/')));
+        $this->assertSame($puthead, $router->match($this->request('HEAD', '/')));
         $router->match($this->request('POST', '/'));
     }
 
@@ -250,9 +250,9 @@ class RouterTest extends TestCase
         $router->endpoint('/endpoints', TestEndpoint::class, ['id', 'category'])->add();
 
         $requestRoute = $router->match($this->request('POST', '/endpoints'));
-        $this->assertEquals('/endpoints', $requestRoute->pattern());
-        $this->assertEquals([TestEndpoint::class, 'post'], $requestRoute->view());
-        $this->assertEquals([], $requestRoute->args());
+        $this->assertSame('/endpoints', $requestRoute->pattern());
+        $this->assertSame([TestEndpoint::class, 'post'], $requestRoute->view());
+        $this->assertSame([], $requestRoute->args());
     }
 
     public function testAddRoutesWithCallback(): void
@@ -263,8 +263,8 @@ class RouterTest extends TestCase
             $r->post('/albums', fn () => null);
         });
 
-        $this->assertEquals('index', $router->match($this->request('GET', ''))->name());
-        $this->assertEquals('', $router->match($this->request('POST', '/albums'))->name());
+        $this->assertSame('index', $router->match($this->request('GET', ''))->name());
+        $this->assertSame('', $router->match($this->request('POST', '/albums'))->name());
     }
 
     public function testDuplicateRouteName(): void

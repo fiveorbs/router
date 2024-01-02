@@ -26,8 +26,8 @@ class ViewHandlerTest extends TestCase
         $handler = new ViewHandler($view, [], []);
         $response = $handler->handle($this->request());
 
-        $this->assertEquals('Conia PSR Response', (string)$response->getBody());
-        $this->assertEquals('text/plain', $response->getHeaders()['Content-Type'][0]);
+        $this->assertSame('Conia PSR Response', (string)$response->getBody());
+        $this->assertSame('text/plain', $response->getHeaders()['Content-Type'][0]);
     }
 
     public function testWrongViewReturnType(): void

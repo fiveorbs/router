@@ -14,7 +14,7 @@ class StaticRouteTest extends TestCase
         $router = new Router();
         $router->addStatic('/static', $this->root . '/public/static');
 
-        $this->assertEquals('/static/test.json', $router->staticUrl('/static', 'test.json'));
+        $this->assertSame('/static/test.json', $router->staticUrl('/static', 'test.json'));
         $this->assertMatchesRegularExpression('/\?v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json', true));
         $this->assertMatchesRegularExpression('/\?exists=true&v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json?exists=true', true));
         $this->assertMatchesRegularExpression(
@@ -33,7 +33,7 @@ class StaticRouteTest extends TestCase
         $router = new Router();
         $router->addStatic('/static', $this->root . '/public/static', 'staticroute');
 
-        $this->assertEquals('/static/test.json', $router->staticUrl('staticroute', 'test.json'));
+        $this->assertSame('/static/test.json', $router->staticUrl('staticroute', 'test.json'));
     }
 
     public function testStaticRoutesToNonexistentDirectory(): void

@@ -31,7 +31,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', fn () => 'conia')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('conia', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('conia', (string)$view->execute($this->request())->getBody());
     }
 
     public function testFunction(): void
@@ -40,7 +40,7 @@ class ViewTest extends TestCase
         $route->match('/symbolic');
         $view = new View($route, null);
 
-        $this->assertEquals('symbolic', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('symbolic', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
@@ -49,7 +49,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', '\Conia\Route\Tests\Fixtures\TestController::textView')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
@@ -58,7 +58,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', [TestController::class, 'textView'])->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
@@ -68,7 +68,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', [$controller, 'textView'])->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('text', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('text', (string)$view->execute($this->request())->getBody());
         $this->assertInstanceOf(TestAttribute::class, $view->attributes()[0]);
     }
 
@@ -77,7 +77,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', 'Conia\Route\Tests\Fixtures\TestInvokableClass')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals('Invokable', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('Invokable', (string)$view->execute($this->request())->getBody());
     }
 
     public function testNonexistentControllerView(): void
@@ -104,7 +104,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', TestControllerWithRequest::class . '::requestOnly')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals($request::class, (string)$view->execute($request)->getBody());
+        $this->assertSame($request::class, (string)$view->execute($request)->getBody());
     }
 
     public function testControllerWithRouteInConstructor(): void
@@ -112,7 +112,7 @@ class ViewTest extends TestCase
         $route = Route::any('/', TestControllerWithRoute::class . '::routeOnly')->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals($route::class, (string)$view->execute($this->request())->getBody());
+        $this->assertSame($route::class, (string)$view->execute($this->request())->getBody());
     }
 
     public function testControllerWithRequestRouteAndParamInConstructor(): void
@@ -125,7 +125,7 @@ class ViewTest extends TestCase
         $route->match('/conia');
         $view = new View($route, null);
 
-        $this->assertEquals(
+        $this->assertSame(
             $request::class . $route::class . 'conia',
             (string)$view->execute($request)->getBody()
         );
@@ -141,7 +141,7 @@ class ViewTest extends TestCase
         $route->match('/symbolic/7.13-23');
         $view = new View($route, null);
 
-        $this->assertEquals(
+        $this->assertSame(
             '{"string":"symbolic","float":7.13,"int":23,"request":"Laminas\\\\Diactoros\\\\ServerRequest"}',
             (string)$view->execute($request)->getBody()
         );
@@ -157,14 +157,14 @@ class ViewTest extends TestCase
         $route->match('/symbolic/17');
         $view = new View($route, null);
 
-        $this->assertEquals('{"string":"symbolic","int":17}', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('{"string":"symbolic","int":17}', (string)$view->execute($this->request())->getBody());
 
         // Should use the default value
         $route = Route::any('/{string}', TestController::class . '::routeDefaultValueParams')->after($this->renderer());
         $route->match('/symbolic');
         $view = new View($route, null);
 
-        $this->assertEquals('{"string":"symbolic","int":13}', (string)$view->execute($this->request())->getBody());
+        $this->assertSame('{"string":"symbolic","int":13}', (string)$view->execute($this->request())->getBody());
     }
 
     public function testViewWithWrongRouteParams(): void
@@ -225,10 +225,10 @@ class ViewTest extends TestCase
         )->after($this->renderer());
         $view = new View($route, null);
 
-        $this->assertEquals(3, count($view->attributes()));
-        $this->assertEquals(2, count($view->attributes(TestAttribute::class)));
-        $this->assertEquals(1, count($view->attributes(TestAttributeExt::class)));
-        $this->assertEquals(1, count($view->attributes(TestAttributeDiff::class)));
+        $this->assertSame(3, count($view->attributes()));
+        $this->assertSame(2, count($view->attributes(TestAttribute::class)));
+        $this->assertSame(1, count($view->attributes(TestAttributeExt::class)));
+        $this->assertSame(1, count($view->attributes(TestAttributeDiff::class)));
     }
 
     public function testAttributeFilteringControllerView(): void
@@ -236,9 +236,9 @@ class ViewTest extends TestCase
         $route = new Route('/', [TestController::class, 'arrayView']);
         $view = new View($route, null);
 
-        $this->assertEquals(3, count($view->attributes()));
-        $this->assertEquals(2, count($view->attributes(TestAttribute::class)));
-        $this->assertEquals(1, count($view->attributes(TestAttributeExt::class)));
-        $this->assertEquals(1, count($view->attributes(TestAttributeDiff::class)));
+        $this->assertSame(3, count($view->attributes()));
+        $this->assertSame(2, count($view->attributes(TestAttribute::class)));
+        $this->assertSame(1, count($view->attributes(TestAttributeExt::class)));
+        $this->assertSame(1, count($view->attributes(TestAttributeDiff::class)));
     }
 }

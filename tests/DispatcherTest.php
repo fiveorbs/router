@@ -30,7 +30,7 @@ class DispatcherTest extends TestCase
         $dispatcher = new Dispatcher();
         $response = $dispatcher->dispatch($this->request('GET', '/'), $route);
         $this->assertInstanceOf(Response::class, $response);
-        $this->assertEquals('Conia', (string)$response->getBody());
+        $this->assertSame('Conia', (string)$response->getBody());
     }
 
     public function testAddMiddleware(): void
@@ -40,7 +40,7 @@ class DispatcherTest extends TestCase
         $dispatcher->middleware(new TestMiddleware1());
         $dispatcher->middleware(new TestMiddleware2());
 
-        $this->assertEquals(2, count($dispatcher->getMiddleware()));
+        $this->assertSame(2, count($dispatcher->getMiddleware()));
     }
 
     public function testRouteBeforeHandlers(): void
@@ -49,7 +49,7 @@ class DispatcherTest extends TestCase
         $dispatcher->before(new TestBeforeFirst())->before(new TestBeforeSecond());
         $handlers = $dispatcher->beforeHandlers();
 
-        $this->assertEquals(2, count($handlers));
+        $this->assertSame(2, count($handlers));
         $this->assertInstanceof(TestBeforeFirst::class, $handlers[0]);
         $this->assertInstanceof(TestBeforeSecond::class, $handlers[1]);
     }
@@ -60,7 +60,7 @@ class DispatcherTest extends TestCase
         $dispatcher->after(new TestAfterRendererText($this->responseFactory()))->after(new TestAfterAddText());
         $handlers = $dispatcher->afterHandlers();
 
-        $this->assertEquals(2, count($handlers));
+        $this->assertSame(2, count($handlers));
         $this->assertInstanceof(TestAfterRendererText::class, $handlers[0]);
         $this->assertInstanceof(TestAfterAddText::class, $handlers[1]);
     }

@@ -33,11 +33,11 @@ class GroupTest extends TestCase
         }, 'albums:');
         $group->create($router);
 
-        $this->assertEquals('index', $router->match($this->request(method: 'GET', uri: ''))->name());
-        $this->assertEquals('albums:name', $router->match($this->request(method: 'GET', uri: '/albums/symbolic'))->name());
-        $this->assertEquals('albums:home', $router->match($this->request(method: 'GET', uri: '/albums/home'))->name());
-        $this->assertEquals('albums:list', $router->match($this->request(method: 'GET', uri: '/albums'))->name());
-        $this->assertEquals('/albums/symbolic', $router->routeUrl('albums:name', name: 'symbolic'));
+        $this->assertSame('index', $router->match($this->request(method: 'GET', uri: ''))->name());
+        $this->assertSame('albums:name', $router->match($this->request(method: 'GET', uri: '/albums/symbolic'))->name());
+        $this->assertSame('albums:home', $router->match($this->request(method: 'GET', uri: '/albums/home'))->name());
+        $this->assertSame('albums:list', $router->match($this->request(method: 'GET', uri: '/albums'))->name());
+        $this->assertSame('/albums/symbolic', $router->routeUrl('albums:name', name: 'symbolic'));
     }
 
     public function testMatchingUnnamed(): void
@@ -55,10 +55,10 @@ class GroupTest extends TestCase
         });
         $group->create($router);
 
-        $this->assertEquals('', $router->match($this->request('GET', ''))->name());
-        $this->assertEquals('', $router->match($this->request('GET', '/albums/symbolic'))->name());
-        $this->assertEquals('', $router->match($this->request('GET', '/albums/home'))->name());
-        $this->assertEquals('', $router->match($this->request('GET', '/albums'))->name());
+        $this->assertSame('', $router->match($this->request('GET', ''))->name());
+        $this->assertSame('', $router->match($this->request('GET', '/albums/symbolic'))->name());
+        $this->assertSame('', $router->match($this->request('GET', '/albums/home'))->name());
+        $this->assertSame('', $router->match($this->request('GET', '/albums'))->name());
     }
 
     public function testMatchingWithHelperMethods(): void
@@ -83,15 +83,15 @@ class GroupTest extends TestCase
         }, 'helper:');
         $group->create($router);
 
-        $this->assertEquals('helper:getroute', $router->match($this->request('GET', '/helper/get'))->name());
-        $this->assertEquals('helper:postroute', $router->match($this->request('POST', '/helper/post'))->name());
-        $this->assertEquals('helper:putroute', $router->match($this->request('PUT', '/helper/put'))->name());
-        $this->assertEquals('helper:patchroute', $router->match($this->request('PATCH', '/helper/patch'))->name());
-        $this->assertEquals('helper:deleteroute', $router->match($this->request('DELETE', '/helper/delete'))->name());
-        $this->assertEquals('helper:optionsroute', $router->match($this->request('OPTIONS', '/helper/options'))->name());
-        $this->assertEquals('helper:headroute', $router->match($this->request('HEAD', '/helper/head'))->name());
-        $this->assertEquals('helper:allroute', $router->match($this->request('GET', '/helper/route'))->name());
-        $this->assertEquals('helper:allroute', $router->match($this->request('HEAD', '/helper/route'))->name());
+        $this->assertSame('helper:getroute', $router->match($this->request('GET', '/helper/get'))->name());
+        $this->assertSame('helper:postroute', $router->match($this->request('POST', '/helper/post'))->name());
+        $this->assertSame('helper:putroute', $router->match($this->request('PUT', '/helper/put'))->name());
+        $this->assertSame('helper:patchroute', $router->match($this->request('PATCH', '/helper/patch'))->name());
+        $this->assertSame('helper:deleteroute', $router->match($this->request('DELETE', '/helper/delete'))->name());
+        $this->assertSame('helper:optionsroute', $router->match($this->request('OPTIONS', '/helper/options'))->name());
+        $this->assertSame('helper:headroute', $router->match($this->request('HEAD', '/helper/head'))->name());
+        $this->assertSame('helper:allroute', $router->match($this->request('GET', '/helper/route'))->name());
+        $this->assertSame('helper:allroute', $router->match($this->request('HEAD', '/helper/route'))->name());
 
         // raises not allowed
         $router->match($this->request('GET', '/helper/delete'));
@@ -109,8 +109,8 @@ class GroupTest extends TestCase
         $group->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums-list'));
-        $this->assertEquals('albums-list', $route->name());
-        $this->assertEquals([TestController::class, 'albumList'], $route->view());
+        $this->assertSame('albums-list', $route->name());
+        $this->assertSame([TestController::class, 'albumList'], $route->view());
     }
 
     public function testEndpointInGroup(): void
@@ -124,9 +124,9 @@ class GroupTest extends TestCase
         }, 'media-'))->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/media/albums/666'));
-        $this->assertEquals('media-albums-get', $route->name());
-        $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
-        $this->assertEquals(['id' => '666'], $route->args());
+        $this->assertSame('media-albums-get', $route->name());
+        $this->assertSame([TestEndpoint::class, 'get'], $route->view());
+        $this->assertSame(['id' => '666'], $route->args());
     }
 
     public function testNestedGroups(): void
@@ -154,11 +154,11 @@ class GroupTest extends TestCase
         }, 'media-'))->middleware($mw1)->create($router);
 
         $route = $router->match($this->request(method: 'GET', uri: '/media/music/albums/songs/times/666'));
-        $this->assertEquals('media-music-albums-songs-times-get', $route->name());
-        $this->assertEquals([TestEndpoint::class, 'get'], $route->view());
-        $this->assertEquals('/media/music/albums/songs/times/{id}', $route->pattern());
-        $this->assertEquals(['id' => '666'], $route->args());
-        $this->assertEquals([$mw1, $mw2, $mw3, $mw1], $route->getMiddleware());
+        $this->assertSame('media-music-albums-songs-times-get', $route->name());
+        $this->assertSame([TestEndpoint::class, 'get'], $route->view());
+        $this->assertSame('/media/music/albums/songs/times/{id}', $route->pattern());
+        $this->assertSame(['id' => '666'], $route->args());
+        $this->assertSame([$mw1, $mw2, $mw3, $mw1], $route->getMiddleware());
     }
 
     public function testControllerPrefixingErrorUsingClosure(): void
@@ -203,12 +203,12 @@ class GroupTest extends TestCase
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/human'));
         $middleware = $route->getMiddleware();
-        $this->assertEquals(1, count($middleware));
+        $this->assertSame(1, count($middleware));
         $this->assertInstanceof(TestMiddleware2::class, $middleware[0]);
 
         $route = $router->match($this->request(method: 'GET', uri: '/albums/home'));
         $middleware = $route->getMiddleware();
-        $this->assertEquals(2, count($middleware));
+        $this->assertSame(2, count($middleware));
         $this->assertInstanceof(TestMiddleware2::class, $middleware[0]);
         $this->assertInstanceof(TestMiddleware3::class, $middleware[1]);
     }
