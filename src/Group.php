@@ -47,8 +47,8 @@ class Group implements RouteAdder
         }
 
         $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
-        $route->setBeforeHandlers($route->mergeBeforeHandlers($route->beforeHandlers()));
-        $route->setAfterHandlers($route->mergeAfterHandlers($route->afterHandlers()));
+        $route->setBeforeHandlers($this->mergeBeforeHandlers($route->beforeHandlers()));
+        $route->setAfterHandlers($this->mergeAfterHandlers($route->afterHandlers()));
 
         if ($this->routeAdder) {
             $this->routeAdder->addRoute($route);
