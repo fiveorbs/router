@@ -11,7 +11,7 @@ use Conia\Route\Group;
 use Conia\Route\Route;
 use Conia\Route\Router;
 use Conia\Route\Tests\Fixtures\TestAfterAddText;
-use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestAfterRendererText;
 use Conia\Route\Tests\Fixtures\TestBeforeFirst;
 use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestController;

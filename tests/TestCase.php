@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests;
 
-use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestAfterRendererText;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
@@ -51,9 +51,9 @@ class TestCase extends BaseTestCase
         return new ResponseFactory();
     }
 
-    public function renderer(): TestAfterRenderer
+    public function renderer(): TestAfterRendererText
     {
-        return new TestAfterRenderer($this->responseFactory());
+        return new TestAfterRendererText($this->responseFactory());
     }
 
     public function fullTrim(string $text): string

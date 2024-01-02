@@ -7,7 +7,7 @@ namespace Conia\Route\Tests;
 use Conia\Route\Dispatcher;
 use Conia\Route\Route;
 use Conia\Route\Tests\Fixtures\TestAfterAddText;
-use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestAfterRendererText;
 use Conia\Route\Tests\Fixtures\TestBeforeFirst;
 use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
@@ -57,11 +57,11 @@ class DispatcherTest extends TestCase
     public function testRouteAfterHandlers(): void
     {
         $dispatcher = new Dispatcher();
-        $dispatcher->after(new TestAfterRenderer($this->responseFactory()))->after(new TestAfterAddText());
+        $dispatcher->after(new TestAfterRendererText($this->responseFactory()))->after(new TestAfterAddText());
         $handlers = $dispatcher->afterHandlers();
 
         $this->assertEquals(2, count($handlers));
-        $this->assertInstanceof(TestAfterRenderer::class, $handlers[0]);
+        $this->assertInstanceof(TestAfterRendererText::class, $handlers[0]);
         $this->assertInstanceof(TestAfterAddText::class, $handlers[1]);
     }
 }

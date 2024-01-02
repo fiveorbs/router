@@ -8,7 +8,7 @@ use Conia\Route\Exception\InvalidArgumentException;
 use Conia\Route\Exception\ValueError;
 use Conia\Route\Route;
 use Conia\Route\Tests\Fixtures\TestAfterAddText;
-use Conia\Route\Tests\Fixtures\TestAfterRenderer;
+use Conia\Route\Tests\Fixtures\TestAfterRendererText;
 use Conia\Route\Tests\Fixtures\TestBeforeFirst;
 use Conia\Route\Tests\Fixtures\TestBeforeSecond;
 use Conia\Route\Tests\Fixtures\TestMiddleware1;
@@ -232,10 +232,10 @@ class RouteTest extends TestCase
     public function testRouteAfterHandlers(): void
     {
         $route = Route::get('/', fn () => 'chuck');
-        $route->after(new TestAfterRenderer($this->responseFactory()))->after(new TestAfterAddText());
+        $route->after(new TestAfterRendererText($this->responseFactory()))->after(new TestAfterAddText());
         $handlers = $route->afterHandlers();
 
-        $this->assertInstanceof(TestAfterRenderer::class, $handlers[0]);
+        $this->assertInstanceof(TestAfterRendererText::class, $handlers[0]);
         $this->assertInstanceof(TestAfterAddText::class, $handlers[1]);
     }
 }
