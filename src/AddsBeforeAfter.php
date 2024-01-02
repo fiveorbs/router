@@ -14,7 +14,7 @@ trait AddsBeforeAfter
 
     public function before(Before $beforeHandler): static
     {
-        $this->beforeHandlers[] = $beforeHandler;
+        $this->beforeHandlers = $this->mergeBeforeHandlers([$beforeHandler]);
 
         return $this;
     }
@@ -44,7 +44,7 @@ trait AddsBeforeAfter
 
     public function after(After $afterHandler): static
     {
-        $this->afterHandlers[] = $afterHandler;
+        $this->afterHandlers = $this->mergeAfterHandlers([$afterHandler]);
 
         return $this;
     }
@@ -74,15 +74,15 @@ trait AddsBeforeAfter
 
     /**
      * @template T of Before|After
-     * @psalm-param list<T> $existingHandlers
-     * @psalm-param list<T> $existingHandlers
+     * @psalm-param list<T> $handlers
+     * @psalm-param list<T> $newHandlers
      * @return list<T>
      */
-    protected function mergeHandlers(array $existingHandlers, array $newHandlers): array
+    protected function mergeHandlers(array $handlers, array $newHandlers): array
     {
         foreach ($newHandlers as $handler) {
             $replaced = false;
-            $existingHandlers = array_map(function ($h) use ($handler, &$replaced) {
+            $handlers = array_map(function ($h) use ($handler, &$replaced) {
                 if (!$replaced && $h->replace($handler)) {
                     $replaced = true;
 
@@ -90,13 +90,13 @@ trait AddsBeforeAfter
                 }
 
                 return $h;
-            }, $existingHandlers);
+            }, $handlers);
 
             if (!$replaced) {
-                $existingHandlers[] = $handler;
+                $handlers[] = $handler;
             }
         }
 
-        return $existingHandlers;
+        return $handlers;
     }
 }
