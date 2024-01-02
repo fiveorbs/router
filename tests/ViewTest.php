@@ -15,7 +15,6 @@ use Conia\Route\Tests\Fixtures\TestControllerWithRequestAndRoute;
 use Conia\Route\Tests\Fixtures\TestControllerWithRoute;
 use Conia\Route\View;
 use GdImage;
-use PHPUnit\Framework\Attributes\Group;
 
 class ViewTest extends TestCase
 {
@@ -148,7 +147,6 @@ class ViewTest extends TestCase
         );
     }
 
-    #[Group('only')]
     public function testViewWithDefaultValueParams(): void
     {
         // Should overwrite the default value

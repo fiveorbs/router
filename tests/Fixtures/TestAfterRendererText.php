@@ -24,6 +24,6 @@ class TestAfterRendererText implements After
 
     public function replace(After $handler): bool
     {
-        return $handler instanceof self;
+        return $handler instanceof TestAfterRendererText;
     }
 }
