@@ -32,11 +32,15 @@ class View
     public function __construct(
         protected readonly Route $route,
         protected readonly ?Container $container,
+        /** @param list<Before> */
+        array $beforeHandlers = [],
+        /** @param list<After> */
+        array $afterHandlers = [],
     ) {
         $this->creator = new Creator($container);
         $this->view = $this->prepareView($route->view());
-        $this->setBeforeHandlers($this->mergeBeforeHandlers($this->route->beforeHandlers()));
-        $this->setAfterHandlers($this->mergeAfterHandlers($this->route->afterHandlers()));
+        $this->setBeforeHandlers($this->mergeHandlers($beforeHandlers, $route->beforeHandlers()));
+        $this->setAfterHandlers($this->mergeHandlers($afterHandlers, $route->afterHandlers()));
     }
 
     public function execute(Request $request): Response
