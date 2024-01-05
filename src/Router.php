@@ -10,7 +10,7 @@ use Conia\Route\Exception\NotFoundException;
 use Conia\Route\Exception\RuntimeException;
 use Conia\Route\RouteAdder;
 use Conia\Route\StaticRoute;
-use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
 
 /** @psalm-api */

@@ -12,7 +12,7 @@ class TestBeforeSecond implements Before
     public function handle(Request $request): Request
     {
         return $request
-            ->withAttribute('first', $request->getAttribute('first', '') . '-added-second-value')
+            ->withAttribute('first', $request->getAttribute('first', '') . '-added-by-second')
             ->withAttribute('second', 'second-value');
     }
 

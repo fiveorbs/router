@@ -43,7 +43,7 @@ class DispatcherTest extends TestCase
         $this->assertSame(2, count($dispatcher->getMiddleware()));
     }
 
-    public function testRouteBeforeHandlers(): void
+    public function testAddBeforeHandlers(): void
     {
         $dispatcher = new Dispatcher();
         $dispatcher->before(new TestBeforeFirst())->before(new TestBeforeSecond());
@@ -54,7 +54,7 @@ class DispatcherTest extends TestCase
         $this->assertInstanceof(TestBeforeSecond::class, $handlers[1]);
     }
 
-    public function testRouteAfterHandlers(): void
+    public function testAddAfterHandlers(): void
     {
         $dispatcher = new Dispatcher();
         $dispatcher->after(new TestAfterRendererText($this->responseFactory()))->after(new TestAfterAddText());

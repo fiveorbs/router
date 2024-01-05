@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route\Tests\Fixtures;
 
-use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class TestControllerWithRequest
 {

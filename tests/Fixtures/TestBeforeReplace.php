@@ -7,15 +7,16 @@ namespace Conia\Route\Tests\Fixtures;
 use Conia\Route\Before;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class TestBeforeFirst implements Before
+class TestBeforeReplace implements Before
 {
     public function handle(Request $request): Request
     {
-        return $request->withAttribute('first', 'first-value');
+        return $request
+            ->withAttribute('first', 'replaced');
     }
 
     public function replace(Before $handler): bool
     {
-        return $handler instanceof TestBeforeReplace;
+        return false;
     }
 }

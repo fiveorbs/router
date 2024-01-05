@@ -16,7 +16,7 @@ class TestAfterAddHeader implements After
             throw new RuntimeException('Must be a response');
         }
 
-        return $data->withHeader('conia', 'header-value');
+        return $data->withHeader('added-header', 'header-value');
     }
 
     public function replace(After $handler): bool
