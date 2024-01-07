@@ -11,13 +11,11 @@ use Conia\Route\Exception\RuntimeException;
 use Conia\Route\RouteAdder;
 use Conia\Route\StaticRoute;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Throwable;
 
 /** @psalm-api */
 class Router implements RouteAdder
 {
     use AddsRoutes;
-    use AddsMiddleware;
 
     protected const ALL = 'ALL';
 
