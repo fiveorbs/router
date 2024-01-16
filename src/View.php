@@ -61,6 +61,10 @@ class View
             return $result;
         }
 
+        if ($result instanceof ResponseWrapper) {
+            return $result->unwrap();
+        }
+
         throw new RuntimeException('Unable to determine a response handler for the returned value of the view');
     }
 
