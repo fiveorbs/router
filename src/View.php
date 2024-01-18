@@ -210,7 +210,7 @@ class View
             }
 
             try {
-                return $this->creator->create($typeName);
+                return $this->creator->create($typeName, predefinedTypes: [Request::class => $request]);
             } catch (NotFoundException | ContainerException  $e) {
                 if ($param->isDefaultValueAvailable()) {
                     return $param->getDefaultValue();
