@@ -68,7 +68,7 @@ class View
         throw new RuntimeException('Unable to determine a response handler for the returned value of the view');
     }
 
-    /** @psalm-param $filter ?class-string */
+    /** @param ?class-string $filter*/
     public function attributes(string $filter = null): array
     {
         if (!isset($this->attributes)) {

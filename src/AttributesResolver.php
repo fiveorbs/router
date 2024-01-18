@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
+use Conia\Wire\Call;
 use Conia\Wire\CallableResolver;
 use Conia\Wire\Creator;
 use Psr\Container\ContainerInterface as Container;
