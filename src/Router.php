@@ -17,7 +17,7 @@ class Router implements RouteAdder
 {
     use AddsRoutes;
 
-    protected const ALL = 'ALL';
+    protected const string ALL = 'ALL';
 
     protected string $cacheFile = '';
     protected bool $shouldCache = false;

@@ -9,9 +9,6 @@ use Conia\Route\Exception\InvalidArgumentException;
 use Conia\Route\Exception\ValueError;
 use Stringable;
 
-const LEFT_BRACE = '§§§€§§§';
-const RIGHT_BRACE = '§§§£§§§';
-
 /**
  * @psalm-api
  *
@@ -21,6 +18,9 @@ class Route
 {
     use AddsBeforeAfter;
     use AddsMiddleware;
+
+    protected const string LEFT_BRACE = '§§§€§§§';
+    protected const string RIGHT_BRACE = '§§§£§§§';
 
     protected array $args = [];
 
@@ -255,7 +255,7 @@ class Route
                 $level++;
 
                 if ($level > 1) {
-                    $new .= LEFT_BRACE;
+                    $new .= self::LEFT_BRACE;
                 } else {
                     $new .= '{';
                 }
@@ -265,7 +265,7 @@ class Route
 
             if ($c === '}') {
                 if ($level > 1) {
-                    $new .= RIGHT_BRACE;
+                    $new .= self::RIGHT_BRACE;
                 } else {
                     $new .= '}';
                 }
@@ -287,7 +287,7 @@ class Route
 
     protected function restoreInnerBraces(string $str): string
     {
-        return str_replace(LEFT_BRACE, '{', str_replace(RIGHT_BRACE, '}', $str));
+        return str_replace(self::LEFT_BRACE, '{', str_replace(self::RIGHT_BRACE, '}', $str));
     }
 
     protected function compiledPattern(): string
