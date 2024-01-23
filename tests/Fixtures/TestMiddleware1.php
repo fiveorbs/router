@@ -16,6 +16,6 @@ class TestMiddleware1 implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        return $handler->handle($request);
+        return $handler->handle($request->withAttribute('mw1', 'Middleware 1'));
     }
 }

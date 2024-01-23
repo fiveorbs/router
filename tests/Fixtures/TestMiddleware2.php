@@ -13,6 +13,9 @@ class TestMiddleware2 implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        return $handler->handle($request);
+        return $handler->handle($request->withAttribute(
+            'mw2',
+            'Middleware 2' . ($request->getAttribute('mw1', '') ? ' - After 1' : '')
+        ));
     }
 }
