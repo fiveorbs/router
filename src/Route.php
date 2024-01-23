@@ -292,10 +292,7 @@ class Route
     /* TODO: improve prefix handling. Get rid of the many trim calls */
     protected function compiledPattern(string $prefix): string
     {
-        // Ensure leading slash
-        if ($prefix) {
-            $prefix = '/' . ltrim($prefix, '/');
-        }
+        // Ensure leading slash, $prefix is already cleaned up by Router
         $pattern = $prefix . '/' . ltrim($this->pattern, '/');
 
         if (strlen($pattern) > 1) {

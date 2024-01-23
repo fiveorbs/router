@@ -17,8 +17,11 @@ class Router implements RouteAdder
 {
     use AddsRoutes;
 
-    public function __construct(protected readonly string $prefix = '')
+    protected readonly string $globalPrefix;
+
+    public function __construct(string $globalPrefix = '')
     {
+        $this->globalPrefix = $globalPrefix ? '/' . ltrim($globalPrefix, '/') : '';
     }
 
     protected const string ALL = 'ALL';
@@ -95,7 +98,7 @@ class Router implements RouteAdder
 
         if (is_dir($dir)) {
             $this->staticRoutes[$name] = new StaticRoute(
-                prefix: $this->prefix . '/' . trim($prefix, '/') . '/',
+                prefix: $this->globalPrefix . '/' . trim($prefix, '/') . '/',
                 dir: $dir,
             );
         } else {
@@ -149,7 +152,7 @@ class Router implements RouteAdder
 
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
-                if ($route->match($url, $this->prefix)) {
+                if ($route->match($url, $this->globalPrefix)) {
                     return $route;
                 }
             }
@@ -168,7 +171,7 @@ class Router implements RouteAdder
 
         foreach ($remainingMethods as $method) {
             foreach ($this->routes[$method] as $route) {
-                if ($route->match($url)) {
+                if ($route->match($url, $this->globalPrefix)) {
                     $wrongMethod = true;
 
                     break;
