@@ -36,6 +36,26 @@ class RouterTest extends TestCase
         $this->assertSame('', $router->match($this->request('GET', '/albums/name'))->name());
     }
 
+    public function testPrefixMatching(): void
+    {
+        $router = new Router('/prefix');
+        $index = new Route('/', fn () => null, 'index');
+        $router->addRoute($index);
+        $albums = new Route('/albums', fn () => null);
+        $router->addRoute($albums);
+        $router->addGroup(new Group('/albums', function (Group $group) {
+            $ctrl = TestController::class;
+            $group->addRoute(Route::get('/{name}', "{$ctrl}::albumName"));
+        }));
+
+        $this->assertSame('index', $router->match($this->request('GET', '/prefix'))->name());
+
+        $this->assertSame($index, $router->match($this->request('GET', '/prefix')));
+        $this->assertSame($albums, $router->match($this->request('GET', '/prefix/albums')));
+        $this->assertSame($albums, $router->match($this->request('GET', '/prefix/albums?q=Symbolic')));
+        $this->assertSame('', $router->match($this->request('GET', '/prefix/albums/name'))->name());
+    }
+
     public function testThrowingNotFoundException(): void
     {
         $this->throws(NotFoundException::class);

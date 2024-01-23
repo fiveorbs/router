@@ -28,12 +28,39 @@ class StaticRouteTest extends TestCase
         );
     }
 
+    public function testStaticRoutesUnnamedPrefixed(): void
+    {
+        $router = new Router('/prefix');
+        $router->addStatic('/static', $this->root . '/public/static');
+
+        $this->assertSame('/prefix/static/test.json', $router->staticUrl('/static', 'test.json'));
+        $this->assertMatchesRegularExpression('/\?v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json', true));
+        $this->assertMatchesRegularExpression('/\?exists=true&v=[a-f0-9]{8}$/', $router->staticUrl('/static', 'test.json?exists=true', true));
+        $this->assertMatchesRegularExpression(
+            '/https:\/\/conia.local\/prefix\/static\/test.json\?v=[a-f0-9]{8}$/',
+            $router->staticUrl(
+                '/static',
+                'test.json',
+                host: 'https://conia.local/',
+                bust: true,
+            )
+        );
+    }
+
     public function testStaticRoutesNamed(): void
     {
         $router = new Router();
         $router->addStatic('/static', $this->root . '/public/static', 'staticroute');
 
         $this->assertSame('/static/test.json', $router->staticUrl('staticroute', 'test.json'));
+    }
+
+    public function testStaticRoutesPrefixed(): void
+    {
+        $router = new Router('/prefix');
+        $router->addStatic('/static', $this->root . '/public/static', 'staticroute');
+
+        $this->assertSame('/prefix/static/test.json', $router->staticUrl('staticroute', 'test.json'));
     }
 
     public function testStaticRoutesToNonexistentDirectory(): void

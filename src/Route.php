@@ -212,10 +212,9 @@ class Route
         return $this->pattern;
     }
 
-    public function match(string $url): ?Route
+    public function match(string $url, string $prefix = ''): ?Route
     {
-        $pattern = $this->compiledPattern();
-        assert(strlen($pattern) > 0);
+        $pattern = $this->compiledPattern($prefix);
 
         /**
          * The previous assert does not satisfy psalm regarding
@@ -290,10 +289,18 @@ class Route
         return str_replace(self::LEFT_BRACE, '{', str_replace(self::RIGHT_BRACE, '}', $str));
     }
 
-    protected function compiledPattern(): string
+    /* TODO: improve prefix handling. Get rid of the many trim calls */
+    protected function compiledPattern(string $prefix): string
     {
         // Ensure leading slash
-        $pattern = '/' . ltrim($this->pattern, '/');
+        if ($prefix) {
+            $prefix = '/' . ltrim($prefix, '/');
+        }
+        $pattern = $prefix . '/' . ltrim($this->pattern, '/');
+
+        if (strlen($pattern) > 1) {
+            $pattern = rtrim($pattern, '/');
+        }
 
         // Escape forward slashes
         //     /evil/chuck  to \/evil\/chuck

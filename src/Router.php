@@ -17,6 +17,10 @@ class Router implements RouteAdder
 {
     use AddsRoutes;
 
+    public function __construct(protected readonly string $prefix = '')
+    {
+    }
+
     protected const string ALL = 'ALL';
 
     protected string $cacheFile = '';
@@ -91,7 +95,7 @@ class Router implements RouteAdder
 
         if (is_dir($dir)) {
             $this->staticRoutes[$name] = new StaticRoute(
-                prefix: '/' . trim($prefix, '/') . '/',
+                prefix: $this->prefix . '/' . trim($prefix, '/') . '/',
                 dir: $dir,
             );
         } else {
@@ -145,7 +149,7 @@ class Router implements RouteAdder
 
         foreach ([$requestMethod, self::ALL] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
-                if ($route->match($url)) {
+                if ($route->match($url, $this->prefix)) {
                     return $route;
                 }
             }
