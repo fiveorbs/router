@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Conia\Route;
 
-use PHPUnit\Framework\Attributes\Group;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface as Middleware;
@@ -25,7 +24,6 @@ class ViewHandler implements RequestHandler
         $this->middleware = array_merge($globalMiddleware, $view->middleware());
     }
 
-    #[Group('only')]
     public function handle(Request $request): Response
     {
         if (0 === count($this->middleware)) {
