@@ -24,7 +24,7 @@ class Router implements RouteAdder
         $this->globalPrefix = $globalPrefix ? '/' . ltrim($globalPrefix, '/') : '';
     }
 
-    protected const string ALL = 'ALL';
+    protected const string ANY = 'ANY';
 
     protected string $cacheFile = '';
     protected bool $shouldCache = false;
@@ -58,7 +58,7 @@ class Router implements RouteAdder
         }
 
         if ($noMethodGiven) {
-            $this->routes[self::ALL][] = $route;
+            $this->routes[self::ANY][] = $route;
         }
 
         if ($name) {
@@ -150,7 +150,7 @@ class Router implements RouteAdder
         $url = rawurldecode($request->getUri()->getPath());
         $requestMethod = $request->getMethod();
 
-        foreach ([$requestMethod, self::ALL] as $method) {
+        foreach ([$requestMethod, self::ANY] as $method) {
             foreach ($this->routes[$method] ?? [] as $route) {
                 if ($route->match($url, $this->globalPrefix)) {
                     return $route;
@@ -163,7 +163,7 @@ class Router implements RouteAdder
         $wrongMethod = false;
         $remainingMethods = array_keys($this->routes);
 
-        foreach ([$requestMethod, self::ALL] as $method) {
+        foreach ([$requestMethod, self::ANY] as $method) {
             if (($key = array_search($method, $remainingMethods)) !== false) {
                 unset($remainingMethods[$key]);
             }
