@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Exception;
+namespace FiveOrbs\Router\Exception;
 
-class MethodNotAllowedException extends NotFoundException
-{
-}
+class MethodNotAllowedException extends NotFoundException {}

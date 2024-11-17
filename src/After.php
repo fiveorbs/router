@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 interface After
 {
-    public function handle(mixed $data): mixed;
+	public function handle(mixed $data): mixed;
 
-    public function replace(After $handler): bool;
+	public function replace(After $handler): bool;
 }

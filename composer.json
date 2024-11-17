@@ -1,5 +1,5 @@
 {
-    "name": "conia/route",
+    "name": "fiveorbs/route",
     "description": "PSR-7/PSR-15 router and dispatcher",
     "type": "library",
     "license": "MIT",
@@ -7,7 +7,7 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Conia\\Route\\": "src/"
+            "FiveOrbs\\Router\\": "src/"
         },
         "files": [
             "src/Utils.php"
@@ -15,7 +15,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Conia\\Route\\Tests\\": "tests/"
+            "FiveOrbs\\Router\\Tests\\": "tests/"
         },
         "files": [
             "tests/Fixtures/globalTestSymbols.php"
@@ -29,7 +29,7 @@
     ],
     "require": {
         "php": ">=8.3",
-        "conia/wire": "^0.3.0",
+        "fiveorbs/wire": "dev-main",
         "psr/container": "^2.0",
         "psr/http-message": "^1.1 || ^2.0",
         "psr/http-message-implementation": "^1.0",
@@ -37,7 +37,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "conia/development": "^1.0",
+        "fiveorbs/dev": "^1.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "laminas/laminas-diactoros": "^3.3",
         "phpunit/phpunit": "^10.4",

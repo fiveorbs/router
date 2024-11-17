@@ -2,91 +2,90 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 use Closure;
-use Conia\Route\AddsMiddleware;
-use Conia\Route\AddsRoutes;
-use Conia\Route\Exception\RuntimeException;
-use Conia\Route\RouteAdder;
+use FiveOrbs\Router\AddsMiddleware;
+use FiveOrbs\Router\AddsRoutes;
+use FiveOrbs\Router\Exception\RuntimeException;
+use FiveOrbs\Router\RouteAdder;
 
 /** @psalm-api */
 class Group implements RouteAdder
 {
-    use AddsBeforeAfter;
-    use AddsMiddleware;
-    use AddsRoutes;
+	use AddsBeforeAfter;
+	use AddsMiddleware;
+	use AddsRoutes;
 
-    /** @psalm-var list<Group> */
-    protected array $subgroups = [];
+	/** @psalm-var list<Group> */
+	protected array $subgroups = [];
 
-    protected ?RouteAdder $routeAdder = null;
-    protected ?string $controller = null;
-    protected bool $created = false;
+	protected ?RouteAdder $routeAdder = null;
+	protected ?string $controller = null;
+	protected bool $created = false;
 
-    public function __construct(
-        protected string $patternPrefix,
-        protected Closure $createClosure,
-        protected string $namePrefix = '',
-    ) {
-    }
+	public function __construct(
+		protected string $patternPrefix,
+		protected Closure $createClosure,
+		protected string $namePrefix = '',
+	) {}
 
-    public function controller(string $controller): static
-    {
-        $this->controller = $controller;
+	public function controller(string $controller): static
+	{
+		$this->controller = $controller;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function addRoute(Route $route): Route
-    {
-        $route->prefix($this->patternPrefix, $this->namePrefix);
+	public function addRoute(Route $route): Route
+	{
+		$route->prefix($this->patternPrefix, $this->namePrefix);
 
-        if ($this->controller) {
-            $route->controller($this->controller);
-        }
+		if ($this->controller) {
+			$route->controller($this->controller);
+		}
 
-        $route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
-        $route->setBeforeHandlers($this->mergeBeforeHandlers($route->beforeHandlers()));
-        $route->setAfterHandlers($this->mergeAfterHandlers($route->afterHandlers()));
+		$route->replaceMiddleware(array_merge($this->middleware, $route->getMiddleware()));
+		$route->setBeforeHandlers($this->mergeBeforeHandlers($route->beforeHandlers()));
+		$route->setAfterHandlers($this->mergeAfterHandlers($route->afterHandlers()));
 
-        if ($this->routeAdder) {
-            $this->routeAdder->addRoute($route);
+		if ($this->routeAdder) {
+			$this->routeAdder->addRoute($route);
 
-            return $route;
-        }
+			return $route;
+		}
 
-        throw new RuntimeException('RouteAdder not set');
-    }
+		throw new RuntimeException('RouteAdder not set');
+	}
 
-    public function addGroup(Group $group): void
-    {
-        $group->create($this);
-    }
+	public function addGroup(Group $group): void
+	{
+		$group->create($this);
+	}
 
-    public function group(
-        string $patternPrefix,
-        Closure $createClosure,
-        string $namePrefix = '',
-    ): Group {
-        $group = new Group($patternPrefix, $createClosure, $namePrefix);
-        $this->subgroups[] = $group;
+	public function group(
+		string $patternPrefix,
+		Closure $createClosure,
+		string $namePrefix = '',
+	): Group {
+		$group = new Group($patternPrefix, $createClosure, $namePrefix);
+		$this->subgroups[] = $group;
 
-        return $group;
-    }
+		return $group;
+	}
 
-    public function create(RouteAdder $adder): void
-    {
-        if ($this->created) {
-            return;
-        }
+	public function create(RouteAdder $adder): void
+	{
+		if ($this->created) {
+			return;
+		}
 
-        $this->created = true;
-        $this->routeAdder = $adder;
-        ($this->createClosure)($this);
+		$this->created = true;
+		$this->routeAdder = $adder;
+		($this->createClosure)($this);
 
-        foreach ($this->subgroups as $subgroup) {
-            $subgroup->create($this);
-        }
-    }
+		foreach ($this->subgroups as $subgroup) {
+			$subgroup->create($this);
+		}
+	}
 }

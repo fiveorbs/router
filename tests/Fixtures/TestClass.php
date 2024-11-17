@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Tests\Fixtures;
+namespace FiveOrbs\Router\Tests\Fixtures;
 
-class TestClass
-{
-}
+class TestClass {}

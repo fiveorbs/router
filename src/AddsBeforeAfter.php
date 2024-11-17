@@ -2,101 +2,101 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 trait AddsBeforeAfter
 {
-    /** @psalm-var list<Before> */
-    protected array $beforeHandlers = [];
+	/** @psalm-var list<Before> */
+	protected array $beforeHandlers = [];
 
-    /** @psalm-var list<After> */
-    protected array $afterHandlers = [];
+	/** @psalm-var list<After> */
+	protected array $afterHandlers = [];
 
-    public function before(Before $beforeHandler): static
-    {
-        $this->beforeHandlers = $this->mergeBeforeHandlers([$beforeHandler]);
+	public function before(Before $beforeHandler): static
+	{
+		$this->beforeHandlers = $this->mergeBeforeHandlers([$beforeHandler]);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /** @return list<Before> */
-    public function beforeHandlers(): array
-    {
-        return $this->beforeHandlers;
-    }
+	/** @return list<Before> */
+	public function beforeHandlers(): array
+	{
+		return $this->beforeHandlers;
+	}
 
-    /**
-     * @psalm-param list<Before> $beforeHandlers
-     * @return list<Before>
-     */
-    public function mergeBeforeHandlers(array $beforeHandlers): array
-    {
-        return $this->mergeHandlers($this->beforeHandlers, $beforeHandlers);
-    }
+	/**
+	 * @psalm-param list<Before> $beforeHandlers
+	 * @return list<Before>
+	 */
+	public function mergeBeforeHandlers(array $beforeHandlers): array
+	{
+		return $this->mergeHandlers($this->beforeHandlers, $beforeHandlers);
+	}
 
-    /** @psalm-param list<Before> $beforeHandlers */
-    public function setBeforeHandlers(array $beforeHandlers): static
-    {
-        $this->beforeHandlers = $beforeHandlers;
+	/** @psalm-param list<Before> $beforeHandlers */
+	public function setBeforeHandlers(array $beforeHandlers): static
+	{
+		$this->beforeHandlers = $beforeHandlers;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function after(After $afterHandler): static
-    {
-        $this->afterHandlers = $this->mergeAfterHandlers([$afterHandler]);
+	public function after(After $afterHandler): static
+	{
+		$this->afterHandlers = $this->mergeAfterHandlers([$afterHandler]);
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /** @return list<After> */
-    public function afterHandlers(): array
-    {
-        return $this->afterHandlers;
-    }
+	/** @return list<After> */
+	public function afterHandlers(): array
+	{
+		return $this->afterHandlers;
+	}
 
-    /**
-     * @param list<After> $afterHandlers
-     * @return list<After>
-     */
-    public function mergeAfterHandlers(array $afterHandlers): array
-    {
-        return $this->mergeHandlers($this->afterHandlers, $afterHandlers);
-    }
+	/**
+	 * @param list<After> $afterHandlers
+	 * @return list<After>
+	 */
+	public function mergeAfterHandlers(array $afterHandlers): array
+	{
+		return $this->mergeHandlers($this->afterHandlers, $afterHandlers);
+	}
 
-    /** @psalm-param list<After> $afterHandlers */
-    public function setAfterHandlers(array $afterHandlers): static
-    {
-        $this->afterHandlers = $afterHandlers;
+	/** @psalm-param list<After> $afterHandlers */
+	public function setAfterHandlers(array $afterHandlers): static
+	{
+		$this->afterHandlers = $afterHandlers;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * @template T of Before|After
-     * @psalm-param list<T> $handlers
-     * @psalm-param list<T> $newHandlers
-     * @return list<T>
-     */
-    protected function mergeHandlers(array $handlers, array $newHandlers): array
-    {
-        foreach ($newHandlers as $handler) {
-            $replaced = false;
-            $handlers = array_map(function ($h) use ($handler, &$replaced) {
-                if (!$replaced && $h->replace($handler)) {
-                    $replaced = true;
+	/**
+	 * @template T of Before|After
+	 * @psalm-param list<T> $handlers
+	 * @psalm-param list<T> $newHandlers
+	 * @return list<T>
+	 */
+	protected function mergeHandlers(array $handlers, array $newHandlers): array
+	{
+		foreach ($newHandlers as $handler) {
+			$replaced = false;
+			$handlers = array_map(function ($h) use ($handler, &$replaced) {
+				if (!$replaced && $h->replace($handler)) {
+					$replaced = true;
 
-                    return $handler;
-                }
+					return $handler;
+				}
 
-                return $h;
-            }, $handlers);
+				return $h;
+			}, $handlers);
 
-            if (!$replaced) {
-                $handlers[] = $handler;
-            }
-        }
+			if (!$replaced) {
+				$handlers[] = $handler;
+			}
+		}
 
-        return $handlers;
-    }
+		return $handlers;
+	}
 }

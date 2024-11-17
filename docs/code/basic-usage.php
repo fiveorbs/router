@@ -6,8 +6,8 @@ use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\Request;
 use Laminas\Diactoros\Uri;
 
-use Conia\Route\Router;
-use Conia\Route\Dispatcher;
+use FiveOrbs\Router\Router;
+use FiveOrbs\Router\Dispatcher;
 
 $router = new Router();
 
@@ -18,7 +18,7 @@ $router->get('/:name', function (string $name) {
     return $response;
 });
 
-$request = (new Request())->withUri(new Uri('http://example.com/conia-route'))->withMethod('GET');
+$request = (new Request())->withUri(new Uri('http://example.com/fiveorbs-route'))->withMethod('GET');
 
 $route = $router->match($request);
 
@@ -26,5 +26,4 @@ $dispatcher = new Dispatcher(new ResponseFactory(), new Renderers());
 
 $response = $dispatcher->dispatch($route);
 
-assert((string)$response->getBody() == 'conia-route');
-
+assert((string)$response->getBody() == 'fiveorbs-route');

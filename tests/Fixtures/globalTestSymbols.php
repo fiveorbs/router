@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-use Conia\Route\Tests\Fixtures\TestAttribute;
+use FiveOrbs\Router\Tests\Fixtures\TestAttribute;
 
 if (!function_exists('testJsonRendererIterator')) {
-    function testJsonRendererIterator()
-    {
-        $arr = [13, 31, 73];
+	function testJsonRendererIterator()
+	{
+		$arr = [13, 31, 73];
 
-        foreach ($arr as $a) {
-            yield $a;
-        }
-    }
+		foreach ($arr as $a) {
+			yield $a;
+		}
+	}
 
-    #[TestAttribute]
-    function testViewWithAttribute(string $name): string
-    {
-        return $name;
-    }
+	#[TestAttribute]
+	function testViewWithAttribute(string $name): string
+	{
+		return $name;
+	}
 }

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Exception;
+namespace FiveOrbs\Router\Exception;
 
-class ValueError extends \ValueError implements RouteException
-{
-}
+class ValueError extends \ValueError implements RouteException {}

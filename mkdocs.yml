@@ -1,10 +1,10 @@
-site_name: Conia Route
+site_name: FiveOrbs Route
 copyright: © 2023 ebene fünf GmbH
 nav:
   - index.md
 theme:
-    name: conia
-repo_url: https://github.com/coniadev/route
+    name: fiveorbs
+repo_url: https://github.com/fiveorbs/route
 extra:
     project: Route
 plugins:

@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 class StaticRoute
 {
-    public function __construct(
-        readonly public string $prefix,
-        readonly public string $dir
-    ) {
-    }
+	public function __construct(
+		readonly public string $prefix,
+		readonly public string $dir,
+	) {}
 }

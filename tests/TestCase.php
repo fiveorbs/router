@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Tests;
+namespace FiveOrbs\Router\Tests;
 
-use Conia\Route\Tests\Fixtures\TestAfterRendererText;
+use FiveOrbs\Router\Tests\Fixtures\TestAfterRendererText;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
@@ -13,61 +13,61 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class TestCase extends BaseTestCase
 {
-    public string $root;
+	public string $root;
 
-    public function setUp(): void
-    {
-        $this->root = __DIR__ . '/Fixtures';
-    }
+	public function setUp(): void
+	{
+		$this->root = __DIR__ . '/Fixtures';
+	}
 
-    public function throws(string $exception, string $message = null): void
-    {
-        $this->expectException($exception);
+	public function throws(string $exception, string $message = null): void
+	{
+		$this->expectException($exception);
 
-        if ($message) {
-            $this->expectExceptionMessage($message);
-        }
-    }
+		if ($message) {
+			$this->expectExceptionMessage($message);
+		}
+	}
 
-    public function request(
-        ?string $method = null,
-        ?string $uri = null,
-    ): Request {
-        $request = ServerRequestFactory::fromGlobals();
+	public function request(
+		?string $method = null,
+		?string $uri = null,
+	): Request {
+		$request = ServerRequestFactory::fromGlobals();
 
-        if ($method) {
-            $request = $request->withMethod($method);
-        }
+		if ($method) {
+			$request = $request->withMethod($method);
+		}
 
-        if ($uri) {
-            $request = $request->withUri(new Uri($uri));
-        }
+		if ($uri) {
+			$request = $request->withUri(new Uri($uri));
+		}
 
-        return $request;
-    }
+		return $request;
+	}
 
-    public function responseFactory(): ResponseFactory
-    {
-        return new ResponseFactory();
-    }
+	public function responseFactory(): ResponseFactory
+	{
+		return new ResponseFactory();
+	}
 
-    public function renderer(): TestAfterRendererText
-    {
-        return new TestAfterRendererText($this->responseFactory());
-    }
+	public function renderer(): TestAfterRendererText
+	{
+		return new TestAfterRendererText($this->responseFactory());
+	}
 
-    public function fullTrim(string $text): string
-    {
-        return trim(
-            preg_replace(
-                '/> </',
-                '><',
-                preg_replace(
-                    '/\s+/',
-                    ' ',
-                    preg_replace('/\n/', '', $text)
-                )
-            )
-        );
-    }
+	public function fullTrim(string $text): string
+	{
+		return trim(
+			preg_replace(
+				'/> </',
+				'><',
+				preg_replace(
+					'/\s+/',
+					' ',
+					preg_replace('/\n/', '', $text),
+				),
+			),
+		);
+	}
 }

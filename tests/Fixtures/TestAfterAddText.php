@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Tests\Fixtures;
+namespace FiveOrbs\Router\Tests\Fixtures;
 
-use Conia\Route\After;
+use FiveOrbs\Router\After;
 use Psr\Http\Message\ResponseInterface as Response;
 use RuntimeException;
 
 class TestAfterAddText implements After
 {
-    public function handle(mixed $data): Response
-    {
-        if (!($data instanceof Response)) {
-            throw new RuntimeException('Must be a response');
-        }
+	public function handle(mixed $data): Response
+	{
+		if (!($data instanceof Response)) {
+			throw new RuntimeException('Must be a response');
+		}
 
-        $data->getBody()->write('-appended');
+		$data->getBody()->write('-appended');
 
-        return $data;
-    }
+		return $data;
+	}
 
-    public function replace(After $handler): bool
-    {
-        return false;
-    }
+	public function replace(After $handler): bool
+	{
+		return false;
+	}
 }

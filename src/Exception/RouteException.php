@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Exception;
+namespace FiveOrbs\Router\Exception;
 
 use Throwable;
 
-interface RouteException extends Throwable
-{
-}
+interface RouteException extends Throwable {}

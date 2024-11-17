@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Tests\Fixtures;
+namespace FiveOrbs\Router\Tests\Fixtures;
 
-use Conia\Route\Route;
+use FiveOrbs\Router\Route;
 
 class TestControllerWithRoute
 {
-    public function __construct(protected Route $route)
-    {
-    }
+	public function __construct(protected Route $route) {}
 
-    public function routeOnly(): string
-    {
-        return $this->route::class;
-    }
+	public function routeOnly(): string
+	{
+		return $this->route::class;
+	}
 }

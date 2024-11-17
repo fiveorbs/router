@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Exception;
+namespace FiveOrbs\Router\Exception;
 
-class InvalidArgumentException extends \InvalidArgumentException implements RouteException
-{
-}
+class InvalidArgumentException extends \InvalidArgumentException implements RouteException {}

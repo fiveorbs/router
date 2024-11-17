@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route\Exception;
+namespace FiveOrbs\Router\Exception;
 
-class RuntimeException extends \RuntimeException implements RouteException
-{
-}
+class RuntimeException extends \RuntimeException implements RouteException {}

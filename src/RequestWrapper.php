@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 interface RequestWrapper
 {
-    public function unwrap(): Request;
+	public function unwrap(): Request;
 }

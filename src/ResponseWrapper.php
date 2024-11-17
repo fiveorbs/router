@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Conia\Route;
+namespace FiveOrbs\Router;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
 interface ResponseWrapper
 {
-    public function unwrap(): Response;
+	public function unwrap(): Response;
 }
