@@ -3,11 +3,11 @@ copyright: © 2023 ebene fünf GmbH
 nav:
   - index.md
 theme:
-    name: fiveorbs
+	name: fiveorbs
 repo_url: https://github.com/fiveorbs/route
 extra:
-    project: Route
+	project: Route
 plugins:
-    - search
-    - macros:
-        module_name: docs/main
+	- search
+	- macros:
+		module_name: docs/main
